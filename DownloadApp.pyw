@@ -26,38 +26,115 @@ from winreg import *
 with OpenKey(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders') as key:
     Downloads = QueryValueEx(key, '{374DE290-123F-4565-9164-39C4925E467B}')[0]
 
+class Worker(QRunnable):
+    '''
+    Worker thread
+
+    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
+
+    :param callback: The function callback to run on this worker thread. Supplied args and
+                     kwargs will be passed through to the runner.
+    :type callback: function
+    :param args: Arguments to pass to the callback function
+    :param kwargs: Keywords to pass to the callback function
+
+    '''
+
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        # Store constructor arguments (re-used for processing)
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+
+    @pyqtSlot()
+    def run(self):
+        '''
+        Initialise the runner function with passed args, kwargs.
+        '''
+        self.fn(*self.args, **self.kwargs)
+
 class Window(QWidget):
     # Download Stage
     DownloadStage = 0
 
+    def center(self):
+            qr = self.frameGeometry()
+            cp = QDesktopWidget().availableGeometry().center()
+            qr.moveCenter(cp)
+            self.move(qr.topLeft())
+
+    def createGridLayout(self):
+            self.horizontalGroupBox = QGroupBox("Youtube Downloader")
+            layout = QGridLayout()
+            layout.setColumnStretch (0, 1)
+            layout.setRowStretch (0, 0)
+        
+            # |0,0|0,1|0,2|0,3|
+            # |1,0|1,1|1,2|1,3|
+            # |2,0|2,1|2,2|2,3|
+            # |3,0|3,1|3,2|3,3|
+        
+            layout.addWidget(self.Entry, 0,0)
+            layout.addWidget(self.pbar,  1,0)
+            layout.addWidget(self.btn,   1,1)
+            
+            self.horizontalGroupBox.setLayout(layout)
+
+    def GetSongName(self):
+        self.SongName = YouTube(self.Link).title
+    
+    def callback(self):
+        self.Link = self.Entry.text()
+        
+        if len(self.Link) > 0:
+            # Errors?
+            try:
+                worker = Worker(self.GetSongName)
+                self.threadpool.start(worker)
+                
+                self.UpdateStage(self)
+            except:
+                pass
+
     def __init__(self):
             super().__init__()
-
-            # calling initUI method
+            self.threadpool = QThreadPool()
             self.initUI()
-
-            # Entry
-            #self.sv = StringVar()
-            #self.sv.trace("w", lambda name, index, mode, sv = self.sv: self.callback(self))
-            
-            #self.entry = tk.Entry(root, textvariable = self.sv)
-            #self.canvas.create_window(200, 140, window = self.entry)
 
     # method for creating widgets
     def initUI(self):
-            self.setGeometry(300, 300, 280, 170)
+            # Window Setup
+            self.setFixedSize(400, 0)
+            self.center()
             self.setWindowTitle("Youtube Downloader")
-        
-            self.pbar = QProgressBar(self)
-            self.pbar.setGeometry(30, 40, 200, 25)
 
-            self.btn = QPushButton('Start', self)
-            self.btn.move(40, 80)
+            # Progress Bar
+            self.pbar = QProgressBar(self)
+            self.pbar.setAlignment(Qt.AlignCenter)
+            self.pbar.adjustSize()
+      
+            # Button
+            self.btn = QPushButton('X', self)
+            self.btn.setToolTip("Remove 'Song Title Goes Here'")
+     
             #self.btn.clicked.connect(self.doAction)
+
+            # Entry
+            self.Entry = QLineEdit(self)
+            self.Entry.setPlaceholderText("Paste A Youtube Link Here")
+            self.Entry.setStyleSheet("color: rgb(0, 0, 0);")
+            self.Entry.textChanged.connect(self.callback)
+            
+            # Layout
+            self.createGridLayout()
+        
+            windowLayout = QVBoxLayout()
+            windowLayout.addWidget(self.horizontalGroupBox)
+            self.setLayout(windowLayout)
 
             # showing all the widgets
             self.show()
-
 
     def Download(self, args):
         ydl_opts = {
@@ -81,21 +158,6 @@ class Window(QWidget):
     def CancelDownload(self, ind, args):
         print(self.ListIndex)
         print(ind)
-    
-    def callback(self, args):
-        self.Link = self.sv.get()
-        
-        if len(self.Link) > 0:
-            try:
-                self.SongName = YouTube(self.Link).title
-
-                #self.entry.config(state="disable")
-
-                self.entry.delete(0, 'end')
-
-                self.UpdateStage(self)
-            except:
-                self.entry.config(fg='red')  
         
 # Main
 if __name__ == '__main__':
