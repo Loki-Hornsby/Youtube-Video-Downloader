@@ -77,22 +77,16 @@ class Window(QWidget):
     def GetSongName(self):
         try:
             self.SongName = YouTube(self.Link).title
-        except:
+        except Exception as e:
+            print(e)
             print("Incorrect Name :)")
-            
-        #self.Download(self)
 
     def callback(self):
         self.Link = self.Entry.text()
     
         if len(self.Link) > 0:
-            print(self.Link)
-
             worker = Worker(self.GetSongName)
             self.threadpool.start(worker)
-            
-            #self.Entry.setEnabled(False)
-            #self.Entry.clear()
 
     # method for creating widgets
     def initUI(self):
@@ -137,7 +131,9 @@ class Window(QWidget):
             #self.pbar.setValue(int(p))
             print(p)
 
-    def Download(self, args):
+    def Download(self):
+        #self.Entry.setEnabled(False)
+        
         self.ydl_opts = {
             'outtmpl': Downloads + '\\' + self.SongName + '.%(ext)s',
             'format': 'bestaudio/best',
@@ -151,6 +147,9 @@ class Window(QWidget):
         }
         
         #youtube_dl.YoutubeDL(self.ydl_opts).download([self.Link])
+
+        self.Entry.setEnabled(True)
+        self.Entry.clear()
 
     def CancelDownload(self, ind, args):
         print(self.ListIndex)
