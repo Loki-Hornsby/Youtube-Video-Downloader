@@ -18,6 +18,7 @@ import traceback
 from pytube import YouTube
 from pytube.helpers import safe_filename
 from tube_dl import Youtube
+import ffmpeg
 
 import sys
 import os
@@ -104,6 +105,8 @@ class Window(QWidget):
 
     def thread_complete(self):
         self.Loading.setHidden(True)
+        self.Entry.setEnabled(True)
+        self.Entry.clear()
         self.pbar.resetFormat()
     
     def callback(self):
@@ -115,6 +118,7 @@ class Window(QWidget):
     
             self.threadpool.start(worker)
 
+            self.Entry.setEnabled(False)
             self.Loading.setHidden(False)
 
     # method for creating widgets
@@ -160,43 +164,40 @@ class Window(QWidget):
         self.Loading.setHidden(True)
 
         print("Ui Setup!")
-
-    def percent(self, tem, total):
-        perc = (float(tem) / float(total)) * float(100)
-        return perc
     
     def DownloadHook(self, stream, chunk, bytes_remaining):
         self.pbar.setValue(bytes_remaining)
         print(bytes_remaining)
             
     def Download(self):
-        self.Entry.setEnabled(False)
-        
         # Downloads + '\\' + self.SongName + '.%(ext)s'
         # self.DownloadHook
         # https://www.youtube.com/watch?v=9nY9eUvAq5U
 
-        yt = YouTube(self.Link)
-        vids= yt.streams.all()
-
-        vnum = int(input("Enter vid num: "))
-
+        vnum = 1
         parent_dir = Downloads + '\\'
+        new_filename = self.SongName + ".mp3"
+
+        yt = YouTube(self.Link)
+        vids = yt.streams.filter(only_audio=True).all()
+        
         vids[vnum].download(parent_dir)
+        default_filename = vids[vnum].default_filename
+        print(vids[vnum].default_filename)
 
-        new_filename = input("Enter filename (including extension): ")  # e.g. new_filename.mp3
+        stream = ffmpeg.input(os.path.join(parent_dir, default_filename))
+        stream = ffmpeg.output(stream, os.path.join(parent_dir, new_filename))
 
-        default_filename = vids[vnum].default_filename  # get default name using pytube API
-        subprocess.run([
-            'ffmpeg',
-            '-i', os.path.join(parent_dir, default_filename),
-            os.path.join(parent_dir, new_filename)
-        ])
-
-        print('done')
-
-        #self.Entry.setEnabled(True)
-        #self.Entry.clear()
+        #[WinError 2] The system cannot find the file specified
+   
+        try:
+            ffmpeg.run(stream, cmd='ffmpeg loglevel -quiet', capture_stdout=True, capture_stderr=True)
+        except ffmpeg.Error as e:
+                print('stdout:', e.stdout.decode('utf8'))
+                print('stderr:', e.stderr.decode('utf8'))
+                raise e
+            
+        os.remove(parent_dir + default_filename)
 
     def CancelDownload(self, ind, args):
         print(self.ListIndex)
