@@ -1,6 +1,5 @@
 # ----- Compile Command ----- #
 # pyinstaller -w --onefile DownloadApp.pyw
-# https://www.youtube.com/watch?v=6PKdX1n5wn8
 
 from __future__ import print_function, unicode_literals
 
@@ -9,15 +8,16 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 import time
-import clipboard
 
 import sys
 from sys import argv  
-from subprocess import call            
+from subprocess import call
+import subprocess
+import traceback
 
 from pytube import YouTube
 from pytube.helpers import safe_filename
-import youtube_dl
+from tube_dl import Youtube
 
 import sys
 import os
@@ -27,6 +27,13 @@ from winreg import *
 with OpenKey(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders') as key:
     Downloads = QueryValueEx(key, '{374DE290-123F-4565-9164-39C4925E467B}')[0]
 
+class WorkerSignals(QObject):
+    finished = pyqtSignal()
+    error = pyqtSignal(tuple)
+    result = pyqtSignal(object)
+    progress = pyqtSignal(int)
+
+
 class Worker(QRunnable):
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
@@ -35,12 +42,24 @@ class Worker(QRunnable):
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
+        self.signals = WorkerSignals()
+
+        # Add the callback to our kwargs
+        self.kwargs['progress_callback'] = self.signals.progress
 
     @pyqtSlot()
     def run(self):
-        print("Thread Started...")
-        self.fn(*self.args, **self.kwargs)
-        print("Thread Ended")
+        # Retrieve args/kwargs here; and fire processing using them
+        try:
+            result = self.fn(*self.args, **self.kwargs)
+        except:
+            traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
+        else:
+            self.signals.result.emit(result)  # Return the result of the processing
+        finally:
+            self.signals.finished.emit()  # Done
         
 class Window(QWidget):
     def __init__(self):
@@ -68,25 +87,35 @@ class Window(QWidget):
         # |2,0|2,1|2,2|2,3|
         # |3,0|3,1|3,2|3,3|
         
-        layout.addWidget(self.Entry, 0,0)
-        layout.addWidget(self.pbar,  1,0)
-        layout.addWidget(self.btn,   1,1)
+        layout.addWidget(self.Entry,   0,0)
+        layout.addWidget(self.pbar,    1,0)
+        layout.addWidget(self.btn,     1,1)
+        layout.addWidget(self.Loading, 0,1)
             
         self.horizontalGroupBox.setLayout(layout)
 
-    def GetSongName(self):
+    def GetSongName(self, progress_callback):
         try:
             self.SongName = YouTube(self.Link).title
+            self.Download()
         except Exception as e:
             print(e)
             print("Incorrect Name :)")
 
+    def thread_complete(self):
+        self.Loading.setHidden(True)
+        self.pbar.resetFormat()
+    
     def callback(self):
         self.Link = self.Entry.text()
     
         if len(self.Link) > 0:
             worker = Worker(self.GetSongName)
+            worker.signals.finished.connect(self.thread_complete)
+    
             self.threadpool.start(worker)
+
+            self.Loading.setHidden(False)
 
     # method for creating widgets
     def initUI(self):
@@ -111,6 +140,13 @@ class Window(QWidget):
         self.Entry.setPlaceholderText("Paste A Youtube Link Here")
         self.Entry.setStyleSheet("color: rgb(0, 0, 0);")
         self.Entry.textChanged.connect(self.callback)
+
+        # Loading Symbol
+        self.Loading = QLabel()
+        self.gif = QMovie("Loading.gif")
+        self.gif.setScaledSize(QSize().scaled(20, 20, Qt.KeepAspectRatio))
+        self.Loading.setMovie(self.gif)
+        self.gif.start()
             
         # Layout
         self.createGridLayout()
@@ -119,37 +155,48 @@ class Window(QWidget):
         windowLayout.addWidget(self.horizontalGroupBox)
         self.setLayout(windowLayout)
 
-        # showing all the widgets
+        # Finish
         self.show()
+        self.Loading.setHidden(True)
 
         print("Ui Setup!")
 
-    def DownloadHook(self, d):
-        if d['status'] == 'downloading':
-            p = d['_percent_str']
-            p = p.replace('%','')
-            #self.pbar.setValue(int(p))
-            print(p)
-
+    def percent(self, tem, total):
+        perc = (float(tem) / float(total)) * float(100)
+        return perc
+    
+    def DownloadHook(self, stream, chunk, bytes_remaining):
+        self.pbar.setValue(bytes_remaining)
+        print(bytes_remaining)
+            
     def Download(self):
-        #self.Entry.setEnabled(False)
+        self.Entry.setEnabled(False)
         
-        self.ydl_opts = {
-            'outtmpl': Downloads + '\\' + self.SongName + '.%(ext)s',
-            'format': 'bestaudio/best',
-            'progress_hooks': [self.DownloadHook],
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }
-            ],
-        }
-        
-        #youtube_dl.YoutubeDL(self.ydl_opts).download([self.Link])
+        # Downloads + '\\' + self.SongName + '.%(ext)s'
+        # self.DownloadHook
+        # https://www.youtube.com/watch?v=9nY9eUvAq5U
 
-        self.Entry.setEnabled(True)
-        self.Entry.clear()
+        yt = YouTube(self.Link)
+        vids= yt.streams.all()
+
+        vnum = int(input("Enter vid num: "))
+
+        parent_dir = Downloads + '\\'
+        vids[vnum].download(parent_dir)
+
+        new_filename = input("Enter filename (including extension): ")  # e.g. new_filename.mp3
+
+        default_filename = vids[vnum].default_filename  # get default name using pytube API
+        subprocess.run([
+            'ffmpeg',
+            '-i', os.path.join(parent_dir, default_filename),
+            os.path.join(parent_dir, new_filename)
+        ])
+
+        print('done')
+
+        #self.Entry.setEnabled(True)
+        #self.Entry.clear()
 
     def CancelDownload(self, ind, args):
         print(self.ListIndex)
@@ -166,57 +213,4 @@ if __name__ == '__main__':
     # start the app
     sys.exit(App.exec_())
 
-'''
-# Data
-Link = clipboard.paste()
-
-global Name
-
-try:
-    Name = YouTube(Link).title
-
-    DownloadStage = 1
-except:
-    ctypes.windll.user32.MessageBoxW(0, "Incorrect link", "Proccess Failed", Ontop | Error)
-    sys.exit("Incorrect Link")
-
-# Download Query
-def DownloadQuery():
-    result = ctypes.windll.user32.MessageBoxW(0, "Download " + Name + "?", "Download?", Ontop | Question)
-     
-    if result == IDNO:
-        sys.exit("User Cancelled Download")
-
-    if result != IDYES:
-        sys.exit("Malform?")
-
-DownloadQuery()
-
-# Main Loop
-while True:
-    if DownloadStage == 1:
-        print("Downloading")
-     
-        ydl_opts = {
-            'outtmpl': Downloads + '\\' + Name + '.%(ext)s',
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }
-            ],
-        }
-        
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([Link])
-
-
-        DownloadStage = 2
-
-    if DownloadStage == 2:
-        ctypes.windll.user32.MessageBoxW(0, "Proccess finished succesfully", "Finished", Ontop | Error)
-        sys.exit("Finished")
-
-        DownloadStage = 0
-'''
+    
