@@ -172,7 +172,8 @@ class Window(QWidget):
     def Download(self):
         # Downloads + '\\' + self.SongName + '.%(ext)s'
         # self.DownloadHook
-        # https://www.youtube.com/watch?v=9nY9eUvAq5U
+        # https://www.youtube.com/watch?v=9nY9eUvAq5U - short
+        # https://www.youtube.com/watch?v=kxGWsHYITAw - long
 
         vnum = 1
         parent_dir = Downloads + '\\'
@@ -182,22 +183,26 @@ class Window(QWidget):
         vids = yt.streams.filter(only_audio=True).all()
         
         vids[vnum].download(parent_dir)
-        default_filename = vids[vnum].default_filename
-        print(vids[vnum].default_filename)
+        DownloadName = vids[vnum].default_filename
+        
+        #stream = ffmpeg.input(os.path.join(parent_dir, DownloadName))
+        #stream = ffmpeg.output(stream, os.path.join(parent_dir, new_filename)))
 
-        stream = ffmpeg.input(os.path.join(parent_dir, default_filename))
-        stream = ffmpeg.output(stream, os.path.join(parent_dir, new_filename))
-
-        #[WinError 2] The system cannot find the file specified
-   
         try:
-            ffmpeg.run(stream, cmd='ffmpeg loglevel -quiet', capture_stdout=True, capture_stderr=True)
+            # This seems to hide it but invisible errors are being thrown maybe check some of your args such as -nostats or -hide_banner - good luck :)
+            CREATE_NO_WINDOW = 0x08000000
+            subprocess.call([
+                'ffmpeg',
+                '-loglevel', 'error', '-hide_banner', '-nostats',
+                '-i', os.path.join(parent_dir, DownloadName), os.path.join(parent_dir, new_filename)], creationflags=CREATE_NO_WINDOW)
+                            
+            #ffmpeg.run(stream, cmd=['ffmpeg', '-loglevel', 'error', '-hide_banner', '-nostats'], capture_stdout=True, capture_stderr=True)
         except ffmpeg.Error as e:
                 print('stdout:', e.stdout.decode('utf8'))
                 print('stderr:', e.stderr.decode('utf8'))
                 raise e
             
-        os.remove(parent_dir + default_filename)
+        os.remove(parent_dir + DownloadName)
 
     def CancelDownload(self, ind, args):
         print(self.ListIndex)
