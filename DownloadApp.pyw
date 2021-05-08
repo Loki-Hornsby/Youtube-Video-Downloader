@@ -14,6 +14,7 @@ from sys import argv
 from subprocess import call
 import subprocess
 import traceback
+from pathlib import Path
 
 from pytube import YouTube
 from pytube.helpers import safe_filename
@@ -176,33 +177,41 @@ class Window(QWidget):
         # https://www.youtube.com/watch?v=kxGWsHYITAw - long
 
         vnum = 1
-        parent_dir = Downloads + '\\'
-        new_filename = self.SongName + ".mp3"
+
+        # if name already exists in downloads i.e A.mp3
+        # counter++
+        # if A + counter (A1.mp3) exists repeat until exit
 
         yt = YouTube(self.Link)
         vids = yt.streams.filter(only_audio=True).all()
-        
-        vids[vnum].download(parent_dir)
         DownloadName = vids[vnum].default_filename
         
-        #stream = ffmpeg.input(os.path.join(parent_dir, DownloadName))
-        #stream = ffmpeg.output(stream, os.path.join(parent_dir, new_filename)))
+        parent_dir = Downloads + '\\'
+        new_filename = self.SongName + ".mp3"
+        Downloadfilename, Downloadfile_extension = os.path.splitext(DownloadName)
+        temp_name = ""
+        
+        counter = 0
+        
+        while Path(parent_dir + Downloadfilename + str(counter) + Downloadfile_extension).is_file():
+            counter += 1
+            temp_name = Downloadfilename + str(counter)
+            print(temp_name)
+        
+        vids[vnum].download(parent_dir, temp_name)
 
+        '''
+        
         try:
-            # This seems to hide it but invisible errors are being thrown maybe check some of your args such as -nostats or -hide_banner - good luck :)
             CREATE_NO_WINDOW = 0x08000000
             subprocess.call([
                 'ffmpeg',
-                '-loglevel', 'error', '-hide_banner', '-nostats',
-                '-i', os.path.join(parent_dir, DownloadName), os.path.join(parent_dir, new_filename)], creationflags=CREATE_NO_WINDOW)
-                            
-            #ffmpeg.run(stream, cmd=['ffmpeg', '-loglevel', 'error', '-hide_banner', '-nostats'], capture_stdout=True, capture_stderr=True)
-        except ffmpeg.Error as e:
-                print('stdout:', e.stdout.decode('utf8'))
-                print('stderr:', e.stderr.decode('utf8'))
-                raise e
+                '-loglevel', 'error',
+                '-i', os.path.join(parent_dir, DownloadName), os.path.join(parent_dir, new_filename)])#, creationflags=CREATE_NO_WINDOW)
+        except:
+            print("Error Raised?")
             
-        os.remove(parent_dir + DownloadName)
+        os.remove(parent_dir + DownloadName)'''
 
     def CancelDownload(self, ind, args):
         print(self.ListIndex)
