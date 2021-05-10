@@ -176,6 +176,9 @@ class Window(QWidget):
         # https://www.youtube.com/watch?v=9nY9eUvAq5U - short
         # https://www.youtube.com/watch?v=kxGWsHYITAw - long
 
+        # https://www.youtube.com/watch?v=szHSZf8zkyA
+        # https://www.youtube.com/watch?v=NvcasLaeB_s
+
         vnum = 1
 
         # if name already exists in downloads i.e A.mp3
@@ -184,34 +187,37 @@ class Window(QWidget):
 
         yt = YouTube(self.Link)
         vids = yt.streams.filter(only_audio=True).all()
+
         DownloadName = vids[vnum].default_filename
-        
-        parent_dir = Downloads + '\\'
-        new_filename = self.SongName + ".mp3"
         Downloadfilename, Downloadfile_extension = os.path.splitext(DownloadName)
+        parent_dir = Downloads + '\\'
+        extension = ".mp3"
         temp_name = ""
+        temp_path = parent_dir + Downloadfilename + Downloadfile_extension
         
+        # Temp File Check
         counter = 0
         
-        while Path(parent_dir + Downloadfilename + str(counter) + Downloadfile_extension).is_file():
+        while Path(temp_path).is_file():
             counter += 1
             temp_name = Downloadfilename + str(counter)
-            print(temp_name)
-        
+            temp_path = parent_dir + Downloadfilename + str(counter) + Downloadfile_extension
+    
+        # Download
         vids[vnum].download(parent_dir, temp_name)
 
-        '''
-        
+        # Convert
         try:
             CREATE_NO_WINDOW = 0x08000000
             subprocess.call([
                 'ffmpeg',
                 '-loglevel', 'error',
-                '-i', os.path.join(parent_dir, DownloadName), os.path.join(parent_dir, new_filename)])#, creationflags=CREATE_NO_WINDOW)
+                '-i', os.path.join(parent_dir, temp_name + Downloadfile_extension), os.path.join(parent_dir, temp_name + extension)])#, creationflags=CREATE_NO_WINDOW)
         except:
             print("Error Raised?")
-            
-        os.remove(parent_dir + DownloadName)'''
+
+        # Delete Temp File
+        os.remove(parent_dir + temp_name + Downloadfile_extension)
 
     def CancelDownload(self, ind, args):
         print(self.ListIndex)
