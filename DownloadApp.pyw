@@ -2,25 +2,23 @@
 # pyinstaller -w --onefile DownloadApp.pyw
 
 from __future__ import print_function, unicode_literals
-
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-
 import time
-
 import sys
 from sys import argv  
 from subprocess import call
 import subprocess
 import traceback
 from pathlib import Path
-
+import glob
+import wave
+import contextlib
 from pytube import YouTube
 from pytube.helpers import safe_filename
 from tube_dl import Youtube
 import ffmpeg
-
 import sys
 import os
 from winreg import *
@@ -178,6 +176,7 @@ class Window(QWidget):
 
         # https://www.youtube.com/watch?v=szHSZf8zkyA
         # https://www.youtube.com/watch?v=NvcasLaeB_s
+        # https://www.youtube.com/watch?v=ocD0ZIjp_9c
 
         vnum = 1
 
@@ -192,19 +191,26 @@ class Window(QWidget):
         Downloadfilename, Downloadfile_extension = os.path.splitext(DownloadName)
         parent_dir = Downloads + '\\'
         extension = ".mp3"
+        allfileid = ".*"
         temp_name = ""
-        temp_path = parent_dir + Downloadfilename + Downloadfile_extension
+        temp_path = parent_dir + Downloadfilename
         
         # Temp File Check
-        counter = 0
-        
-        while Path(temp_path).is_file():
+        counter = 1
+
+        while glob.glob(temp_path + allfileid):
             counter += 1
             temp_name = Downloadfilename + str(counter)
-            temp_path = parent_dir + Downloadfilename + str(counter) + Downloadfile_extension
+            temp_path = parent_dir + Downloadfilename + str(counter)
     
         # Download
         vids[vnum].download(parent_dir, temp_name)
+
+        with contextlib.closing(wave.open(temp_name + Downloadfile_extension, 'r')) as f:
+            frames = f.getnframes()
+            rate = f.getframerate()
+            duration = frames / float(rate)
+            print(duration)
 
         # Convert
         try:
@@ -212,7 +218,7 @@ class Window(QWidget):
             subprocess.call([
                 'ffmpeg',
                 '-loglevel', 'error',
-                '-i', os.path.join(parent_dir, temp_name + Downloadfile_extension), os.path.join(parent_dir, temp_name + extension)])#, creationflags=CREATE_NO_WINDOW)
+                '-i', os.path.join(parent_dir, temp_name + Downloadfile_extension), os.path.join(parent_dir, temp_name + extension)], creationflags=CREATE_NO_WINDOW)
         except:
             print("Error Raised?")
 
