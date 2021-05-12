@@ -13,7 +13,6 @@ import subprocess
 import traceback
 from pathlib import Path
 import glob
-import wave
 import contextlib
 from pytube import YouTube
 from pytube.helpers import safe_filename
@@ -163,14 +162,15 @@ class Window(QWidget):
         self.Loading.setHidden(True)
 
         print("Ui Setup!")
+
+    def percent(self, tem, total):
+        perc = (float(tem) / float(total)) * float(100)
+        return perc
     
     def DownloadHook(self, stream, chunk, bytes_remaining):
-        self.pbar.setValue(bytes_remaining)
-        print(bytes_remaining)
+        self.pbar.setValue(self.percent(bytes_remaining, 1))
             
     def Download(self):
-        # Downloads + '\\' + self.SongName + '.%(ext)s'
-        # self.DownloadHook
         # https://www.youtube.com/watch?v=9nY9eUvAq5U - short
         # https://www.youtube.com/watch?v=kxGWsHYITAw - long
 
@@ -180,11 +180,7 @@ class Window(QWidget):
 
         vnum = 1
 
-        # if name already exists in downloads i.e A.mp3
-        # counter++
-        # if A + counter (A1.mp3) exists repeat until exit
-
-        yt = YouTube(self.Link)
+        yt = YouTube(self.Link, on_progress_callback = self.DownloadHook)
         vids = yt.streams.filter(only_audio=True).all()
 
         DownloadName = vids[vnum].default_filename
@@ -205,12 +201,6 @@ class Window(QWidget):
     
         # Download
         vids[vnum].download(parent_dir, temp_name)
-
-        with contextlib.closing(wave.open(temp_name + Downloadfile_extension, 'r')) as f:
-            frames = f.getnframes()
-            rate = f.getframerate()
-            duration = frames / float(rate)
-            print(duration)
 
         # Convert
         try:
