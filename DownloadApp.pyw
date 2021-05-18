@@ -21,6 +21,7 @@ import ffmpeg
 import sys
 import os
 from winreg import *
+import clipboard
 
 # Download
 with OpenKey(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders') as key:
@@ -86,38 +87,26 @@ class Window(QWidget):
         # |2,0|2,1|2,2|2,3|
         # |3,0|3,1|3,2|3,3|
         
-        layout.addWidget(self.Entry,   0,0)
-        layout.addWidget(self.pbar,    1,0)
-        layout.addWidget(self.btn,     1,1)
-        layout.addWidget(self.Loading, 0,1)
+        layout.addWidget(self.downloadbtn, 0,0)
+        layout.addWidget(self.pbar,        1,0)
+        layout.addWidget(self.Loading,     0,1)
             
-        self.horizontalGroupBox.setLayout(layout)
-
-    def GetSongName(self, progress_callback):
-        try:
-            self.SongName = YouTube(self.Link).title
-            self.Download()
-        except Exception as e:
-            print(e)
-            print("Incorrect Name :)")
+        self.horizontalGroupBox.setLayout(layout)            
 
     def thread_complete(self):
+        print("A Thread done")
         self.Loading.setHidden(True)
-        self.Entry.setEnabled(True)
-        self.Entry.clear()
+        #self.downloadbtn.setEnabled(True)
         self.pbar.resetFormat()
     
     def callback(self):
-        self.Link = self.Entry.text()
+        worker = Worker(self.Download)
+        worker.signals.finished.connect(self.thread_complete)
     
-        if len(self.Link) > 0:
-            worker = Worker(self.GetSongName)
-            worker.signals.finished.connect(self.thread_complete)
-    
-            self.threadpool.start(worker)
+        self.threadpool.start(worker)
 
-            self.Entry.setEnabled(False)
-            self.Loading.setHidden(False)
+        self.Loading.setHidden(False)
+        #self.downloadbtn.setEnabled(False)
 
     # method for creating widgets
     def initUI(self):
@@ -130,18 +119,12 @@ class Window(QWidget):
         self.pbar = QProgressBar(self)
         self.pbar.setAlignment(Qt.AlignCenter)
         self.pbar.adjustSize()
-      
-        # Button
-        self.btn = QPushButton('X', self)
-        self.btn.setToolTip("Remove 'Song Title Goes Here'")
-     
-        #self.btn.clicked.connect(self.doAction)
 
-        # Entry
-        self.Entry = QLineEdit(self)
-        self.Entry.setPlaceholderText("Paste A Youtube Link Here")
-        self.Entry.setStyleSheet("color: rgb(0, 0, 0);")
-        self.Entry.textChanged.connect(self.callback)
+        # Download Button
+        self.downloadbtn = QPushButton('Download', self)
+        self.downloadbtn.setToolTip("Download Copied Link")
+     
+        self.downloadbtn.clicked.connect(self.callback)
 
         # Loading Symbol
         self.Loading = QLabel()
@@ -170,7 +153,7 @@ class Window(QWidget):
     def DownloadHook(self, stream, chunk, bytes_remaining):
         self.pbar.setValue(self.percent(bytes_remaining, 1))
             
-    def Download(self):
+    def Download(self, progress_callback):
         # https://www.youtube.com/watch?v=9nY9eUvAq5U - short
         # https://www.youtube.com/watch?v=kxGWsHYITAw - long
 
@@ -178,9 +161,16 @@ class Window(QWidget):
         # https://www.youtube.com/watch?v=NvcasLaeB_s
         # https://www.youtube.com/watch?v=ocD0ZIjp_9c
 
+        Link = clipboard.paste()
+        print(Link)
+        
+        SongName = YouTube(Link).title
+
+        print(SongName)
+
         vnum = 1
 
-        yt = YouTube(self.Link, on_progress_callback = self.DownloadHook)
+        yt = YouTube(Link, on_progress_callback = self.DownloadHook)
         vids = yt.streams.filter(only_audio=True).all()
 
         DownloadName = vids[vnum].default_filename
@@ -188,7 +178,7 @@ class Window(QWidget):
         parent_dir = Downloads + '\\'
         extension = ".mp3"
         allfileid = ".*"
-        temp_name = ""
+        temp_name = Downloadfilename
         temp_path = parent_dir + Downloadfilename
         
         # Temp File Check
@@ -198,6 +188,9 @@ class Window(QWidget):
             counter += 1
             temp_name = Downloadfilename + str(counter)
             temp_path = parent_dir + Downloadfilename + str(counter)
+
+        print(temp_name)
+        print(temp_path)
     
         # Download
         vids[vnum].download(parent_dir, temp_name)
@@ -212,8 +205,11 @@ class Window(QWidget):
         except:
             print("Error Raised?")
 
+        print(parent_dir + temp_name + Downloadfile_extension)
+        
         # Delete Temp File
-        os.remove(parent_dir + temp_name + Downloadfile_extension)
+        if os.path.isfile(parent_dir + temp_name + Downloadfile_extension):
+            os.remove(parent_dir + temp_name + Downloadfile_extension)
 
     def CancelDownload(self, ind, args):
         print(self.ListIndex)
