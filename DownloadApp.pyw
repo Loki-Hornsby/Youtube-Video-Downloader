@@ -2,26 +2,31 @@
 # pyinstaller -w --onefile DownloadApp.pyw
 
 from __future__ import print_function, unicode_literals
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import time
-import sys
-from sys import argv  
-from subprocess import call
-import subprocess
-import traceback
-from pathlib import Path
-import glob
-import contextlib
+
 from pytube import YouTube
 from pytube.helpers import safe_filename
 from tube_dl import Youtube
-import ffmpeg
+
+from sys import argv
 import sys
+from subprocess import call
+import subprocess
+
 import os
 from winreg import *
+from pathlib import Path
+import glob
+import contextlib
+import traceback
+
+import ffmpeg
+
 import clipboard
+import time
 
 # Download
 with OpenKey(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders') as key:
@@ -32,7 +37,6 @@ class WorkerSignals(QObject):
     error = pyqtSignal(tuple)
     result = pyqtSignal(object)
     progress = pyqtSignal(int)
-
 
 class Worker(QRunnable):
     def __init__(self, fn, *args, **kwargs):
@@ -64,9 +68,13 @@ class Worker(QRunnable):
 class Window(QWidget):
     def __init__(self):
         super(Window, self).__init__()
-            
+
+        self.LogBuildLine = ""
+        self.ErrorOccured = False
+
         self.initUI()
 
+        self.threads = 0
         self.threadpool = QThreadPool()
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
     
@@ -87,26 +95,33 @@ class Window(QWidget):
         # |2,0|2,1|2,2|2,3|
         # |3,0|3,1|3,2|3,3|
         
-        layout.addWidget(self.downloadbtn, 0,0)
-        layout.addWidget(self.pbar,        1,0)
-        layout.addWidget(self.Loading,     0,1)
+        layout.addWidget(self.downloadbtn,  0,0)
+        layout.addWidget(self.Loading,      0,1)
+        layout.addWidget(self.logTextBox,   1,0)
+        layout.addWidget(self.logB,         1,1)       
             
-        self.horizontalGroupBox.setLayout(layout)            
+        self.horizontalGroupBox.setLayout(layout)
 
     def thread_complete(self):
-        print("A Thread done")
+        self.logTextBox.appendPlainText("Thread (" + str(self.threads) + ") Ended")
+        
+        self.threads -= 1
+
         self.Loading.setHidden(True)
-        #self.downloadbtn.setEnabled(True)
-        self.pbar.resetFormat()
-    
+        
+        self.ErrorOccured = False
+        
     def callback(self):
         worker = Worker(self.Download)
         worker.signals.finished.connect(self.thread_complete)
-    
+        
         self.threadpool.start(worker)
 
+        self.threads += 1
         self.Loading.setHidden(False)
-        #self.downloadbtn.setEnabled(False)
+
+    def clear(self):
+        self.logTextBox.clear()
 
     # method for creating widgets
     def initUI(self):
@@ -115,16 +130,21 @@ class Window(QWidget):
         self.center()
         self.setWindowTitle("Youtube Downloader")
 
-        # Progress Bar
-        self.pbar = QProgressBar(self)
-        self.pbar.setAlignment(Qt.AlignCenter)
-        self.pbar.adjustSize()
-
+        # Error Log
+        self.logTextBox = QtWidgets.QPlainTextEdit(self)
+        self.logTextBox.setReadOnly(True)
+  
+        self.logTextBox.appendPlainText("Logger Iniated")
+        
         # Download Button
         self.downloadbtn = QPushButton('Download', self)
         self.downloadbtn.setToolTip("Download Copied Link")
      
         self.downloadbtn.clicked.connect(self.callback)
+
+        # Clear Log Button
+        self.logB = QPushButton('X', self)
+        self.logB.clicked.connect(self.clear)
 
         # Loading Symbol
         self.Loading = QLabel()
@@ -144,34 +164,19 @@ class Window(QWidget):
         self.show()
         self.Loading.setHidden(True)
 
-        print("Ui Setup!")
-
-    def percent(self, tem, total):
-        perc = (float(tem) / float(total)) * float(100)
-        return perc
-    
-    def DownloadHook(self, stream, chunk, bytes_remaining):
-        self.pbar.setValue(self.percent(bytes_remaining, 1))
-            
-    def Download(self, progress_callback):
-        # https://www.youtube.com/watch?v=9nY9eUvAq5U - short
-        # https://www.youtube.com/watch?v=kxGWsHYITAw - long
-
-        # https://www.youtube.com/watch?v=szHSZf8zkyA
-        # https://www.youtube.com/watch?v=NvcasLaeB_s
-        # https://www.youtube.com/watch?v=ocD0ZIjp_9c
-
+    def Download(self, progress_callback):        
         Link = clipboard.paste()
-        print(Link)
         
-        SongName = YouTube(Link).title
-
-        print(SongName)
+        try:
+            SongName = YouTube(Link).title
+        except:
+            self.ErrorOccured = True
+            self.logTextBox.appendPlainText("Invalid Link")
 
         vnum = 1
 
-        yt = YouTube(Link, on_progress_callback = self.DownloadHook)
-        vids = yt.streams.filter(only_audio=True).all()
+        yt = YouTube(Link)
+        vids = yt.streams.filter(only_audio=True)
 
         DownloadName = vids[vnum].default_filename
         Downloadfilename, Downloadfile_extension = os.path.splitext(DownloadName)
@@ -188,32 +193,24 @@ class Window(QWidget):
             counter += 1
             temp_name = Downloadfilename + str(counter)
             temp_path = parent_dir + Downloadfilename + str(counter)
-
-        print(temp_name)
-        print(temp_path)
     
-        # Download
+        # Download And Convert
         vids[vnum].download(parent_dir, temp_name)
-
+        
         # Convert
         try:
             CREATE_NO_WINDOW = 0x08000000
             subprocess.call([
                 'ffmpeg',
-                '-loglevel', 'error',
+                '-nostdin',
                 '-i', os.path.join(parent_dir, temp_name + Downloadfile_extension), os.path.join(parent_dir, temp_name + extension)], creationflags=CREATE_NO_WINDOW)
+
+            # Delete Temp File
+            if os.path.isfile(parent_dir + temp_name + Downloadfile_extension):
+                os.remove(parent_dir + temp_name + Downloadfile_extension)
         except:
-            print("Error Raised?")
-
-        print(parent_dir + temp_name + Downloadfile_extension)
-        
-        # Delete Temp File
-        if os.path.isfile(parent_dir + temp_name + Downloadfile_extension):
-            os.remove(parent_dir + temp_name + Downloadfile_extension)
-
-    def CancelDownload(self, ind, args):
-        print(self.ListIndex)
-        print(ind)
+            self.ErrorOccured = True
+            self.logTextBox.appendPlainText(Link + " Failed")
         
 # Main
 if __name__ == '__main__':

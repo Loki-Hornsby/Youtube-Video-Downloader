@@ -1,128 +1,52 @@
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+import sys
+from PyQt5 import QtWidgets
+import logging
 
-import time
-import traceback, sys
+# Uncomment below for terminal log messages
+# logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+class QTextEditLogger(logging.Handler):
+    def __init__(self, parent):
+        super().__init__()
+        self.widget = QtWidgets.QPlainTextEdit(parent)
+        self.widget.setReadOnly(True)
 
-class WorkerSignals(QObject):
-    finished = pyqtSignal()
-    error = pyqtSignal(tuple)
-    result = pyqtSignal(object)
-    progress = pyqtSignal(int)
-
-
-class Worker(QRunnable):
-    '''
-    Worker thread
-
-    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
-
-    :param callback: The function callback to run on this worker thread. Supplied args and
-                     kwargs will be passed through to the runner.
-    :type callback: function
-    :param args: Arguments to pass to the callback function
-    :param kwargs: Keywords to pass to the callback function
-
-    '''
-
-    def __init__(self, fn, *args, **kwargs):
-        super(Worker, self).__init__()
-
-        # Store constructor arguments (re-used for processing)
-        self.fn = fn
-        self.args = args
-        self.kwargs = kwargs
-        self.signals = WorkerSignals()
-
-        # Add the callback to our kwargs
-        self.kwargs['progress_callback'] = self.signals.progress
-
-    @pyqtSlot()
-    def run(self):
-        '''
-        Initialise the runner function with passed args, kwargs.
-        '''
-
-        # Retrieve args/kwargs here; and fire processing using them
-        try:
-            result = self.fn(*self.args, **self.kwargs)
-        except:
-            traceback.print_exc()
-            exctype, value = sys.exc_info()[:2]
-            self.signals.error.emit((exctype, value, traceback.format_exc()))
-        else:
-            self.signals.result.emit(result)  # Return the result of the processing
-        finally:
-            self.signals.finished.emit()  # Done
+    def emit(self, record):
+        msg = self.format(record)
+        self.widget.appendPlainText(msg)
 
 
+class MyDialog(QtWidgets.QDialog, QtWidgets.QPlainTextEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
-class MainWindow(QMainWindow):
+        logTextBox = QTextEditLogger(self)
+        # You can format what is printed to text box
+        logTextBox.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(logTextBox)
+        # You can control the logging level
+        logging.getLogger().setLevel(logging.DEBUG)
 
+        self._button = QtWidgets.QPushButton(self)
+        self._button.setText('Test Me')
 
-    def __init__(self, *args, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
+        layout = QtWidgets.QVBoxLayout()
+        # Add the new logging box widget to the layout
+        layout.addWidget(logTextBox.widget)
+        layout.addWidget(self._button)
+        self.setLayout(layout)
 
-        self.counter = 0
+        # Connect signal to slot
+        self._button.clicked.connect(self.test)
 
-        layout = QVBoxLayout()
+    def test(self):
+        logging.debug('damn, a bug')
+        logging.info('something to remember')
+        logging.warning('that\'s not right')
+        logging.error('foobar')
 
-        self.l = QLabel("Start")
-        b = QPushButton("DANGER!")
-        b.pressed.connect(self.oh_no)
-
-        layout.addWidget(self.l)
-        layout.addWidget(b)
-
-        w = QWidget()
-        w.setLayout(layout)
-
-        self.setCentralWidget(w)
-
-        self.show()
-
-        self.threadpool = QThreadPool()
-        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
-
-        self.timer = QTimer()
-        self.timer.setInterval(1000)
-        self.timer.timeout.connect(self.recurring_timer)
-        self.timer.start()
-
-    def progress_fn(self, n):
-        print("%d%% done" % n)
-
-    def execute_this_fn(self, progress_callback):
-        for n in range(0, 5):
-            time.sleep(1)
-            progress_callback.emit(n*100/4)
-
-        return "Done."
-
-    def print_output(self, s):
-        print(s)
-
-    def thread_complete(self):
-        print("THREAD COMPLETE!")
-
-    def oh_no(self):
-        # Pass the function to execute
-        worker = Worker(self.execute_this_fn) # Any other args, kwargs are passed to the run function
-        worker.signals.result.connect(self.print_output)
-        worker.signals.finished.connect(self.thread_complete)
-        worker.signals.progress.connect(self.progress_fn)
-
-        # Execute
-        self.threadpool.start(worker)
-
-
-    def recurring_timer(self):
-        self.counter +=1
-        self.l.setText("Counter: %d" % self.counter)
-
-
-app = QApplication([])
-window = MainWindow()
-app.exec_()
+app = QtWidgets.QApplication(sys.argv)
+dlg = MyDialog()
+dlg.show()
+dlg.raise_()
+sys.exit(app.exec_())
