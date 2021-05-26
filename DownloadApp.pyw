@@ -87,25 +87,25 @@ class Window(QWidget):
     def createGridLayout(self):
         self.horizontalGroupBox = QGroupBox("Youtube Downloader")
         layout = QGridLayout()
-        layout.setColumnStretch (0, 1)
-        layout.setRowStretch (0, 0)
+        
+        layout.setColumnStretch (1, 1)
+        layout.setRowStretch (1, 0)
         
         # |0,0|0,1|0,2|0,3|
         # |1,0|1,1|1,2|1,3|
         # |2,0|2,1|2,2|2,3|
         # |3,0|3,1|3,2|3,3|
+
+        layout.addWidget(self.DCount,       0,0)
+        layout.addWidget(self.downloadbtn,  0,1)
+        layout.addWidget(self.Loading,      0,2)
         
-        layout.addWidget(self.downloadbtn,  0,0)
-        layout.addWidget(self.Loading,      0,1)
-        layout.addWidget(self.logTextBox,   1,0)
-        layout.addWidget(self.logB,         1,1)       
-            
         self.horizontalGroupBox.setLayout(layout)
 
     def thread_complete(self):
-        self.logTextBox.appendPlainText("Thread (" + str(self.threads) + ") Ended")
-        
         self.threads -= 1
+
+        self.DCount.setText(str(self.threads))
 
         self.Loading.setHidden(True)
         
@@ -118,11 +118,9 @@ class Window(QWidget):
         self.threadpool.start(worker)
 
         self.threads += 1
+        self.DCount.setText(str(self.threads))
         self.Loading.setHidden(False)
-
-    def clear(self):
-        self.logTextBox.clear()
-
+        
     # method for creating widgets
     def initUI(self):
         # Window Setup
@@ -130,21 +128,15 @@ class Window(QWidget):
         self.center()
         self.setWindowTitle("Youtube Downloader")
 
-        # Error Log
-        self.logTextBox = QtWidgets.QPlainTextEdit(self)
-        self.logTextBox.setReadOnly(True)
-  
-        self.logTextBox.appendPlainText("Logger Iniated")
-        
+        # Download Counter
+        self.DCount = QLabel("0")
+        self.DCount.adjustSize()
+
         # Download Button
         self.downloadbtn = QPushButton('Download', self)
         self.downloadbtn.setToolTip("Download Copied Link")
      
         self.downloadbtn.clicked.connect(self.callback)
-
-        # Clear Log Button
-        self.logB = QPushButton('X', self)
-        self.logB.clicked.connect(self.clear)
 
         # Loading Symbol
         self.Loading = QLabel()
@@ -171,7 +163,7 @@ class Window(QWidget):
             SongName = YouTube(Link).title
         except:
             self.ErrorOccured = True
-            self.logTextBox.appendPlainText("Invalid Link")
+            #self.logTextBox.appendPlainText("Invalid Link")
 
         vnum = 1
 
@@ -210,7 +202,7 @@ class Window(QWidget):
                 os.remove(parent_dir + temp_name + Downloadfile_extension)
         except:
             self.ErrorOccured = True
-            self.logTextBox.appendPlainText(Link + " Failed")
+            #self.logTextBox.appendPlainText(Link + " Failed")
         
 # Main
 if __name__ == '__main__':
