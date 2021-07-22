@@ -30,7 +30,9 @@ import time
 
 # Download
 with OpenKey(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders') as key:
-    Downloads = QueryValueEx(key, '{374DE290-123F-4565-9164-39C4925E467B}')[0]
+    Download = QueryValueEx(key, '{374DE290-123F-4565-9164-39C4925E467B}')[0]
+
+DownloadLocation = Download
 
 class WorkerSignals(QObject):
     finished = pyqtSignal()
@@ -90,15 +92,17 @@ class Window(QWidget):
         
         layout.setColumnStretch (1, 1)
         layout.setRowStretch (1, 0)
+        layout.setColumnStretch (2, 0.1)
         
         # |0,0|0,1|0,2|0,3|
         # |1,0|1,1|1,2|1,3|
         # |2,0|2,1|2,2|2,3|
         # |3,0|3,1|3,2|3,3|
 
-        layout.addWidget(self.DCount,       0,0)
-        layout.addWidget(self.downloadbtn,  0,1)
-        layout.addWidget(self.Loading,      0,2)
+        layout.addWidget(self.DCount,           0,0)
+        layout.addWidget(self.downloadbtn,      0,1)
+        layout.addWidget(self.locationbtn,      0,2)
+        layout.addWidget(self.Loading,          0,3)
         
         self.horizontalGroupBox.setLayout(layout)
 
@@ -120,7 +124,11 @@ class Window(QWidget):
         self.threads += 1
         self.DCount.setText(str(self.threads))
         self.Loading.setHidden(False)
-        
+
+    def RequestLocation(self):
+        DownloadLocation = QFileDialog.getExistingDirectory(self, "Select Directory", Download)
+        print(DownloadLocation)
+    
     # method for creating widgets
     def initUI(self):
         # Window Setup
@@ -137,6 +145,10 @@ class Window(QWidget):
         self.downloadbtn.setToolTip("Download Copied Link")
      
         self.downloadbtn.clicked.connect(self.callback)
+
+        # Download Location Button
+        self.locationbtn = QPushButton('..', self)
+        self.locationbtn.clicked.connect(self.RequestLocation)
 
         # Loading Symbol
         self.Loading = QLabel()
@@ -172,7 +184,7 @@ class Window(QWidget):
 
         DownloadName = vids[vnum].default_filename
         Downloadfilename, Downloadfile_extension = os.path.splitext(DownloadName)
-        parent_dir = Downloads + '\\'
+        parent_dir = DownloadLocation + '\\'
         extension = ".mp3"
         allfileid = ".*"
         temp_name = Downloadfilename
