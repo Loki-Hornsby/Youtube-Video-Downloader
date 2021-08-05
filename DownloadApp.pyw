@@ -22,13 +22,17 @@ from pathlib import Path
 import glob
 import contextlib
 import traceback
+import uuid
 
 import ffmpeg
 
 import clipboard
-import time
 
-# Download
+import timeit
+
+from win10toast import ToastNotifier
+toaster = ToastNotifier()
+
 with OpenKey(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders') as key:
     Download = QueryValueEx(key, '{374DE290-123F-4565-9164-39C4925E467B}')[0]
 
@@ -41,6 +45,7 @@ class WorkerSignals(QObject):
     progress = pyqtSignal(int)
 
 class Worker(QRunnable):
+# A
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
 
@@ -53,6 +58,7 @@ class Worker(QRunnable):
         # Add the callback to our kwargs
         self.kwargs['progress_callback'] = self.signals.progress
 
+# B
     @pyqtSlot()
     def run(self):
         # Retrieve args/kwargs here; and fire processing using them
@@ -68,31 +74,36 @@ class Worker(QRunnable):
             self.signals.finished.emit()  # Done
         
 class Window(QWidget):
+# 1 
     def __init__(self):
         super(Window, self).__init__()
 
-        self.LogBuildLine = ""
+        # Error Occured
         self.ErrorOccured = False
 
+        # Initialize Ui
         self.initUI()
 
+        # Setup Threads
         self.threads = 0
         self.threadpool = QThreadPool()
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
-    
+
+# 2
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+# 3
     def createGridLayout(self):
         self.horizontalGroupBox = QGroupBox("Youtube Downloader")
         layout = QGridLayout()
         
         layout.setColumnStretch (1, 1)
         layout.setRowStretch (1, 0)
-        layout.setColumnStretch (2, 0.1)
+        layout.setColumnStretch (2, 0)
         
         # |0,0|0,1|0,2|0,3|
         # |1,0|1,1|1,2|1,3|
@@ -106,29 +117,60 @@ class Window(QWidget):
         
         self.horizontalGroupBox.setLayout(layout)
 
-    def thread_complete(self):
-        self.threads -= 1
+# 4
+    def PopUp(self):
+        # Finishing Popup
+        if self.ErrorOccured == False:
+            toaster.show_toast("Threads Complete!",
+                "all songs have been downloaded!",
+                icon_path="Logo.ico",
+                duration=40,
+                threaded=True)
 
+# 5
+    def thread_complete(self):
+        # Threads
+        self.threads -= 1
         self.DCount.setText(str(self.threads))
 
-        self.Loading.setHidden(True)
+        # No Threads Left Condition
+        if self.threads == 0:
+        
+            # Popup if download took more than 2 minutes
+            if (timeit.default_timer() - self.t) > 200:
+                self.PopUp()
+
+        #---# Soft Reset
+            self.Loading.setHidden(True)
+            
+            self.locationbtn.setEnabled(True)
         
         self.ErrorOccured = False
-        
+
+# 6 
     def callback(self):
+        # Timer
+        if self.threads == 0:
+            self.t = timeit.default_timer()
+
+        # Thread
         worker = Worker(self.Download)
         worker.signals.finished.connect(self.thread_complete)
         
         self.threadpool.start(worker)
-
+        
         self.threads += 1
+
+        # Ui
         self.DCount.setText(str(self.threads))
         self.Loading.setHidden(False)
+        self.locationbtn.setEnabled(False)
 
+# 7
     def RequestLocation(self):
         DownloadLocation = QFileDialog.getExistingDirectory(self, "Select Directory", Download)
-        print(DownloadLocation)
     
+# 8
     # method for creating widgets
     def initUI(self):
         # Window Setup
@@ -168,53 +210,53 @@ class Window(QWidget):
         self.show()
         self.Loading.setHidden(True)
 
-    def Download(self, progress_callback):        
+# 9
+    def Download(self, progress_callback): 
         Link = clipboard.paste()
-        
+        yt = YouTube(Link)
+
+        # Get Name       
         try:
-            SongName = YouTube(Link).title
+            self.SongName = yt.title
         except:
             self.ErrorOccured = True
-            #self.logTextBox.appendPlainText("Invalid Link")
+            print("Invalid Link")
 
-        vnum = 1
+        # General
+        vnum = 0 # Playlist Index
 
-        yt = YouTube(Link)
-        vids = yt.streams.filter(only_audio=True)
-
-        DownloadName = vids[vnum].default_filename
-        Downloadfilename, Downloadfile_extension = os.path.splitext(DownloadName)
-        parent_dir = DownloadLocation + '\\'
+        SongName = self.SongName # Download Name for file
+        SongDirectory = DownloadLocation + '\\' # Location of Download
         extension = ".mp3"
-        allfileid = ".*"
-        temp_name = Downloadfilename
-        temp_path = parent_dir + Downloadfilename
-        
-        # Temp File Check
-        counter = 1
 
-        while glob.glob(temp_path + allfileid):
-            counter += 1
-            temp_name = Downloadfilename + str(counter)
-            temp_path = parent_dir + Downloadfilename + str(counter)
-    
-        # Download And Convert
-        vids[vnum].download(parent_dir, temp_name)
-        
-        # Convert
-        try:
+        print(SongDirectory + SongName + extension)
+
+        if not os.path.isfile(SongDirectory + SongName + extension):
+            # Generate Unique temp Name
+            unique = str(uuid.uuid4().hex)
+
+            while glob.glob(SongDirectory + unique + ".*"):
+                unique = str(uuid.uuid4().hex)
+            
+            # Download Video
+            vids = yt.streams.filter(only_audio=True).first()
+            vids.download(SongDirectory, unique) 
+            
+            # Convert Video
             CREATE_NO_WINDOW = 0x08000000
             subprocess.call([
                 'ffmpeg',
                 '-nostdin',
-                '-i', os.path.join(parent_dir, temp_name + Downloadfile_extension), os.path.join(parent_dir, temp_name + extension)], creationflags=CREATE_NO_WINDOW)
+                '-i', os.path.join(SongDirectory, unique), os.path.join(SongDirectory, SongName + extension)], creationflags=CREATE_NO_WINDOW)
 
-            # Delete Temp File
-            if os.path.isfile(parent_dir + temp_name + Downloadfile_extension):
-                os.remove(parent_dir + temp_name + Downloadfile_extension)
-        except:
-            self.ErrorOccured = True
-            #self.logTextBox.appendPlainText(Link + " Failed")
+            # Delete Temp
+            #while not os.path.isfile(SongDirectory + SongName + extension):
+                #pass
+            while os.path.isfile(SongDirectory + unique):
+                if os.path.isfile(SongDirectory + SongName + extension):
+                    os.remove(SongDirectory + unique)
+        else:
+            print("File Already Exists!")
         
 # Main
 if __name__ == '__main__':
@@ -223,6 +265,9 @@ if __name__ == '__main__':
   
     # create the instance of our Window
     window = Window()
+
+    # Name Window
+    window.setWindowTitle("Youtube Downloader")
   
     # start the app
     sys.exit(App.exec_())
