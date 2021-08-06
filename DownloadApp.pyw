@@ -29,6 +29,7 @@ with OpenKey(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Explo
 
 DownloadLocation = Download
 
+
 class WorkerSignals(QObject):
     finished = pyqtSignal()
     error = pyqtSignal(tuple)
@@ -36,7 +37,6 @@ class WorkerSignals(QObject):
     progress = pyqtSignal(int)
 
 class Worker(QRunnable):
-# A
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
 
@@ -46,10 +46,6 @@ class Worker(QRunnable):
         self.kwargs = kwargs
         self.signals = WorkerSignals()
 
-        # Add the callback to our kwargs
-        self.kwargs['progress_callback'] = self.signals.progress
-
-# B
     @pyqtSlot()
     def run(self):
         # Retrieve args/kwargs here; and fire processing using them
@@ -64,8 +60,10 @@ class Worker(QRunnable):
         finally:
             self.signals.finished.emit()  # Done
         
+
 class Window(QWidget):
-# 1 
+
+    
     def __init__(self):
         super(Window, self).__init__()
 
@@ -80,14 +78,14 @@ class Window(QWidget):
         self.threadpool = QThreadPool()
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
 
-# 2
+  
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-# 3
+
     def createGridLayout(self):
         self.horizontalGroupBox = QGroupBox("Youtube Downloader")
         layout = QGridLayout()
@@ -108,7 +106,7 @@ class Window(QWidget):
         
         self.horizontalGroupBox.setLayout(layout)
 
-# 4
+
     def PopUp(self):
         # Finishing Popup
         if self.ErrorOccured == False:
@@ -118,7 +116,7 @@ class Window(QWidget):
                 duration=40,
                 threaded=True)
 
-# 5
+
     def thread_complete(self):
         # Threads
         self.threads -= 1
@@ -138,30 +136,50 @@ class Window(QWidget):
         
         self.ErrorOccured = False
 
-# 6 
+
+    def InitiateThread(self, dat):
+        #for v in dat:
+            #worker = Worker(self.Download(v))
+            #worker.signals.finished.connect(self.thread_complete)
+            
+            #self.threadpool.start(worker)
+        
+            #self.threads += 1
+        pass
+
+
     def callback(self):
         # Timer
         if self.threads == 0:
             self.t = timeit.default_timer()
 
+        # Link
+        Link = clipboard.paste()
+
+        # Pick either playlist mode or single mode
+        Data = None
+
+        try:
+            Data = Playlist(Link).videos
+            print(len(Data))
+            print(Data[0].title)
+        except:
+            Data = [YouTube(Link)]
+
         # Thread
-        worker = Worker(self.Download)
-        worker.signals.finished.connect(self.thread_complete)
-        
+        worker = Worker(self.InitiateThread(Data))
         self.threadpool.start(worker)
-        
-        self.threads += 1
 
         # Ui
         self.DCount.setText(str(self.threads))
         self.Loading.setHidden(False)
         self.locationbtn.setEnabled(False)
 
-# 7
+
     def RequestLocation(self):
         DownloadLocation = QFileDialog.getExistingDirectory(self, "Select Directory", Download)
     
-# 8
+
     # method for creating widgets
     def initUI(self):
         # Window Setup
@@ -201,32 +219,19 @@ class Window(QWidget):
         self.show()
         self.Loading.setHidden(True)
 
-# 9
-    def Download(self, progress_callback): 
-        pl = Playlist(Link)
-        for yt in pl.videos:
-            yt.streams.filter(only_audio=True)
 
-        # Setup
-        Link = clipboard.paste()
-        yt = YouTube(Link)
-        
-
+    def Download(self, dat): 
         # Get Name       
         try:
-            self.SongName = yt.title
+            self.SongName = dat.title
         except:
             self.ErrorOccured = True
             print("Invalid Link")
 
         # General
-        vnum = 0 # Playlist Index
-
         SongName = self.SongName # Download Name for file
         SongDirectory = DownloadLocation + '\\' # Location of Download
         extension = ".mp3"
-
-        print(SongDirectory + SongName + extension)
 
         if not os.path.isfile(SongDirectory + SongName + extension):
             # Generate Unique temp Name
@@ -236,7 +241,7 @@ class Window(QWidget):
                 unique = str(uuid.uuid4().hex)
             
             # Download Video
-            vids = yt.streams.filter(only_audio=True).first()
+            vids = dat.streams.first()
             vids.download(SongDirectory, unique) 
             
             # Convert Video
@@ -255,6 +260,7 @@ class Window(QWidget):
         else:
             print("File Already Exists!")
         
+
 # Main
 if __name__ == '__main__':
     # create pyqt5 app
