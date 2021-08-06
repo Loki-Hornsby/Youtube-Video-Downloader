@@ -2,32 +2,23 @@
 # pyinstaller -w --onefile DownloadApp.pyw
 
 from __future__ import print_function, unicode_literals
-from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from pytube import YouTube
-from pytube.helpers import safe_filename
-from tube_dl import Youtube
+from pytube import Playlist
 
-from sys import argv
 import sys
-from subprocess import call
 import subprocess
 
 import os
 from winreg import *
-from pathlib import Path
 import glob
-import contextlib
 import traceback
 import uuid
 
-import ffmpeg
-
 import clipboard
-
 import timeit
 
 from win10toast import ToastNotifier
@@ -212,8 +203,14 @@ class Window(QWidget):
 
 # 9
     def Download(self, progress_callback): 
+        pl = Playlist(Link)
+        for yt in pl.videos:
+            yt.streams.filter(only_audio=True)
+
+        # Setup
         Link = clipboard.paste()
         yt = YouTube(Link)
+        
 
         # Get Name       
         try:
