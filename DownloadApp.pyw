@@ -144,6 +144,8 @@ class Window(QWidget):
             
             self.threadpool.start(worker)
 
+            print("Started a download!")
+
 
     def callback(self):
         # Timer
@@ -160,10 +162,13 @@ class Window(QWidget):
             Data = Playlist(Link).videos
             print(len(Data))
             print(Data[0].title)
-
-            self.threads += len(Data)
         except:
             Data = [YouTube(Link)]
+            print(len(Data))
+            print(Data[0].title)
+
+        # Increase Threads
+        self.threads += len(Data)
 
         # Thread
         worker = Worker(self.InitiateThread, Data)
@@ -251,8 +256,6 @@ class Window(QWidget):
                 '-i', os.path.join(SongDirectory, unique), os.path.join(SongDirectory, SongName + extension)], creationflags=CREATE_NO_WINDOW)
 
             # Delete Temp
-            #while not os.path.isfile(SongDirectory + SongName + extension):
-                #pass
             while os.path.isfile(SongDirectory + unique):
                 if os.path.isfile(SongDirectory + SongName + extension):
                     os.remove(SongDirectory + unique)
