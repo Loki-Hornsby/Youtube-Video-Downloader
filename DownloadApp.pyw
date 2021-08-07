@@ -138,14 +138,11 @@ class Window(QWidget):
 
 
     def InitiateThread(self, dat):
-        #for v in dat:
-            #worker = Worker(self.Download(v))
-            #worker.signals.finished.connect(self.thread_complete)
+        for v in dat:
+            worker = Worker(self.Download, v)
+            worker.signals.finished.connect(self.thread_complete)
             
-            #self.threadpool.start(worker)
-        
-            #self.threads += 1
-        pass
+            self.threadpool.start(worker)
 
 
     def callback(self):
@@ -163,14 +160,16 @@ class Window(QWidget):
             Data = Playlist(Link).videos
             print(len(Data))
             print(Data[0].title)
+
+            self.threads += len(Data)
         except:
             Data = [YouTube(Link)]
 
         # Thread
-        worker = Worker(self.InitiateThread(Data))
+        worker = Worker(self.InitiateThread, Data)
         self.threadpool.start(worker)
 
-        # Ui
+        # Uid
         self.DCount.setText(str(self.threads))
         self.Loading.setHidden(False)
         self.locationbtn.setEnabled(False)
