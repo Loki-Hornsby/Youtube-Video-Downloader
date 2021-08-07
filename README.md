@@ -1,6 +1,12 @@
 ## Youtube-Mp3-Downloader
 
-<img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Linux.png" width="40" height="40"> <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Mac.png" width="40" height="40"> <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Windows.png" width="40" height="40">
+  
+
+| OS  | Supported |
+| :---: | :---: |
+| <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Mac.png" width="64" height="64">  | No |
+| <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Windows.png" width="64" height="64"> | Yes |
+| <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Linux.png" width="64" height="64">  | No |
 
 
 
