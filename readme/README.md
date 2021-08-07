@@ -1,7 +1,7 @@
 ## Youtube-Mp3-Downloader
 
 
-# Current Features:
+# Current Features
 - Download YouTube Videos as mp3's (thats a given :D)
 - Download Youtube Playlists - each video will be put on seperate threads :)
 - Infinite threading of songs (so you can spam the download button as much as you want!)
