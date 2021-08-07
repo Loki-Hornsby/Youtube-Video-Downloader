@@ -1,5 +1,8 @@
-## Youtube-Mp3-Downloader <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/windows%20only.png" width="19" height="19">
+## Youtube-Mp3-Downloader
 
+<img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Linux.png" width="10" height="10">
+<img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Mac.png" width="20" height="20">
+<img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Windows.png" width="20" height="20">
 
 # Current Features
 - Download YouTube Videos as mp3's (thats a given :D)
