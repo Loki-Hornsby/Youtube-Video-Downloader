@@ -7,7 +7,7 @@
 - Infinite threading of songs (so you can spam the download button as much as you want!)
 - Detection of exisiting songs
 - Toast notification when songs are complete (if download lasted more than 2 minutes)
-- Directory Location
+- Directory Location Select
 
 # Info
 Author: https://github.com/Bobbymcbobface </br>
