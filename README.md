@@ -4,7 +4,7 @@
 - FFmpeg: Providing mp4 to mp3 conversion quickly and efficiently
 - if theres any i've missed please create an issue and ping me :)
 
-## Youtube-Mp3-Downloader <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/LogoGif.gif" width="32" height="32"> 
+# Youtube-Mp3-Downloader <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/LogoGif.gif" width="32" height="32"> 
 A small portable youtube link downloader (WIP)
 
 <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Click.gif" width="250" height="50"> 
