@@ -1,3 +1,9 @@
 package-one==1.9.4
-package-two==3.7.1
+git+git://github.com/path/to/package-two@41b95ec#egg=package-two
 package-three==1.0.1
+
+git+git://github.com/path/to/package-two@master#egg=package-two
+
+git+git://github.com/path/to/package-two@0.1#egg=package-two
+
+git+git://github.com/path/to/package-two@releases/tag/v3.7.1#egg=package-two
