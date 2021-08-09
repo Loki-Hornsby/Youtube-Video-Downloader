@@ -1,0 +1,18 @@
+--
+09/08/21: 
+Opened Changelog Manually - script may be created later to automate this a bit more
+
+** Features Currently: **
+Change download location
+Download playlists
+Download single videos
+Show Errors
+Show download complete message
+Threading of multiple videos and playlists
+
+** Bugs (Public AND Unlisted) Currently: ** 
+Exe is flagged as a virus
+Threading multiple playlists can cause crashes
+No catch exception for ghost errors in downloading private videos
+Not all of videos in playlist download (Pytube problem i thinks)
+--
