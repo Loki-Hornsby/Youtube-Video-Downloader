@@ -191,25 +191,28 @@ class Window(QWidget):
         Data = None
 
         # Multi
-        try:
-            Data = Playlist(Link).videos
-            print(len(Data))
-            print(Data[0].title)
-        except:
-            print("Swapping to single video download")
+        if Data == None:
+            try:
+                Data = Playlist(Link).videos
+                print(len(Data))
+                print(Data[0].title)
+            except:
+                print("Swapping to single video download")
 
         # Single
-        try:
-            Data = [YouTube(Link)]
-            print(len(Data))
-            print(Data[0].title)
-        except:
-            Data = None
+        if Data == None:
+            try:
+                Data = [YouTube(Link)]
+                print(len(Data))
+                print(Data[0].title)
+            except:
+                Data = None
 
         # If Data is a valid value
         if Data != None:
             # Increase Threads
             self.threads += len(Data)
+            print(len(Data))
 
             # Thread
             worker = Worker(self.InitiateThread, Data)
@@ -223,7 +226,7 @@ class Window(QWidget):
             self.errorLbl.BeginAnimation(self.downloadbtn, self.locationbtn)
 
     def RequestLocation(self):
-        DownloadLocation = QFileDialog.getExistingDirectory(self, "Select Directory", Download)
+        DownloadLocation = QFileDialog.getExistingDirectory(self, "Select Directory")
     
 
     # method for creating widgets

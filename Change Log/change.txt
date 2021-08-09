@@ -1,27 +1,47 @@
---
-09/08/21: 
+_________
+
+09/08/21:
+_________
+
 Opened Changelog Manually - script may be created later to automate this a bit more
 
-** Features Currently: **
-Change download location
-Download playlists
-Download single videos
-Show Errors
-Show download complete message
-Threading of multiple videos and playlists
+@-------@
 
-** Bugs (Public AND Unlisted) Currently: ** 
-Exe is flagged as a virus
-Threading multiple playlists can cause crashes
-No catch exception for ghost errors in downloading private videos
-Not all of videos in playlist download (Pytube problem i thinks)
-Not working on others machines
---
+FIRST LOG
 
-HUGE CLEANUP 09/08/21 
++ Change download location
++ Download playlists
++ Download single videos
++ Show Errors
++ Show download complete message
++ Threading of multiple videos and playlists
 
-Changed file enviroment to be cleaner
-Deleted standalone exectuable for now
-Removed toast notifications
-Removed download directory as default location and changed it to be within its own folder (possibly making it close to be available on linux and mac)
---
+# Exe is flagged as a virus
+# Threading multiple playlists can cause crashes
+# No catch exception for ghost errors in downloading private videos
+# Not all of videos in playlist download (Pytube problem i thinks)
+# Not working on others machines
+
+@-------@
+
+HUGE CLEANUP  
+
+
++ Changed file enviroment to be cleaner
+
+- Deleted standalone exectuable for now
+- Removed toast notifications
+- Removed download directory as default location and changed it to be within its own folder (possibly making it close to be available on linux and mac)
+
+@-------@
+
+Post Cleanup
+
++ Fixed Playlist download (making 2 try statements without any if statements made it always revert to single download mode)
+
+@-------@
+
+_________
+
+??/??/??:
+_________
