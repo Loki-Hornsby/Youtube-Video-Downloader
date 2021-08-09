@@ -25,3 +25,5 @@ Author: https://github.com/Bobbymcbobface </br>
 &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;https://www.youtube.com/channel/UC1pIR8WylamKlXLEeeKK0hA </br>
         
 &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;These are the only 2 places you can contact me online publically
+
+# Thanks Pyinstaller for allowing me to create a distributable version of my app!
