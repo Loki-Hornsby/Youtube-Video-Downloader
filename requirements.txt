@@ -1,1 +1,1 @@
--e git://github.com/pytube/pytube/releases/tag/v11.0.0#egg=pytube
+trying to work out dependencies
