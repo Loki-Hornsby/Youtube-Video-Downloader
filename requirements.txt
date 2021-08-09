@@ -1,1 +1,1 @@
-git+git://github.com/pytube/pytube/releases/tag/v11.0.0#egg=pytube
+-e git://github.com/pytube/pytube/releases/tag/v11.0.0#egg=pytube
