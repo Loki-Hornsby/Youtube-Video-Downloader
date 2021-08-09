@@ -21,13 +21,7 @@ import uuid
 import clipboard
 import timeit
 
-from win10toast import ToastNotifier
-toaster = ToastNotifier()
-
-with OpenKey(HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders') as key:
-    Download = QueryValueEx(key, '{374DE290-123F-4565-9164-39C4925E467B}')[0]
-
-DownloadLocation = Download
+DownloadLocation = "downloads"
 
 
 class WorkerSignals(QObject):
@@ -157,16 +151,6 @@ class Window(QWidget):
         self.horizontalGroupBox.setLayout(layout)
 
 
-    def PopUp(self):
-        # Finishing Popup
-        if self.ErrorOccured == False:
-            toaster.show_toast("Threads Complete!",
-                "all songs have been downloaded!",
-                icon_path="Logo.ico",
-                duration=40,
-                threaded=True)
-
-
     def thread_complete(self):
         # Threads
         self.threads -= 1
@@ -175,9 +159,7 @@ class Window(QWidget):
         # No Threads Left Condition
         if self.threads == 0:
         
-            # Popup if download took more than 2 minutes
-            if (timeit.default_timer() - self.t) > 200:
-                self.PopUp()
+            # Flash errorlbl when done (and rename errorlbl to notiflbl)
 
         #---# Soft Reset
             self.Loading.setHidden(True)
@@ -267,7 +249,7 @@ class Window(QWidget):
 
         # Loading Symbol
         self.Loading = QLabel()
-        self.gif = QMovie("Loading.gif")
+        self.gif = QMovie("assets/Loading.gif")
         self.gif.setScaledSize(QSize().scaled(20, 20, Qt.KeepAspectRatio))
         self.Loading.setMovie(self.gif)
         self.gif.start()

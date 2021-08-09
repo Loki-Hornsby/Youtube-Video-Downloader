@@ -15,4 +15,13 @@ Exe is flagged as a virus
 Threading multiple playlists can cause crashes
 No catch exception for ghost errors in downloading private videos
 Not all of videos in playlist download (Pytube problem i thinks)
+Not working on others machines
+--
+
+HUGE CLEANUP 09/08/21 
+
+Changed file enviroment to be cleaner
+Deleted standalone exectuable for now
+Removed toast notifications
+Removed download directory as default location and changed it to be within its own folder (possibly making it close to be available on linux and mac)
 --
