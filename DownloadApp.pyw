@@ -59,7 +59,56 @@ class Worker(QRunnable):
             self.signals.result.emit(result)  # Return the result of the processing
         finally:
             self.signals.finished.emit()  # Done
+
+
+class AnimationLabel(QLabel):
+    def __init__(self, *args, **kwargs):
+        QLabel.__init__(self, *args, **kwargs)
+        self.animation = QVariantAnimation()
+        self.animation.valueChanged.connect(self.changeColor)
+
+    @pyqtSlot(QVariant)
+    def changeColor(self, color):
+        palette = self.palette()
+        palette.setColor(QPalette.WindowText, color)
+        self.setPalette(palette)
+
+    def startFadeIn(self):
+        self.animation.stop()
+        self.animation.setStartValue(QColor(255, 0, 0, 0))
+        self.animation.setEndValue(QColor(255, 0, 0, 255))
+        self.animation.setDuration(1000)
+        self.animation.setEasingCurve(QEasingCurve.InBack)
+        self.animation.start()
+
+    def startFadeOut(self):
+        self.animation.stop()
+        self.animation.setStartValue(QColor(255, 0, 0, 255))
+        self.animation.setEndValue(QColor(255, 0, 0, 0))
+        self.animation.setDuration(1000)
+        self.animation.setEasingCurve(QEasingCurve.InBack)
+        self.animation.start()
+
+    def disableUi(self, a, b):
+        a.setEnabled(False)
+        b.setEnabled(False)
+
+    def enableUi(self, a, b):
+        a.setEnabled(True)
+        b.setEnabled(True)
+
+    def BeginAnimation(self, a, b):
+        self.disableUi(a, b)
+
+        self.startFadeIn()
+        self.setHidden(False)
+
+        QTimer.singleShot(1000, self.startFadeOut)
+        QTimer.singleShot(2000, self.startFadeIn)
+        QTimer.singleShot(3000, self.startFadeOut)
         
+        QTimer.singleShot(4000, lambda: self.setHidden(True))
+        QTimer.singleShot(4000, lambda: self.enableUi(a, b))
 
 class Window(QWidget):
 
@@ -77,7 +126,6 @@ class Window(QWidget):
         self.threads = 0
         self.threadpool = QThreadPool()
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
-
   
     def center(self):
         qr = self.frameGeometry()
@@ -103,6 +151,8 @@ class Window(QWidget):
         layout.addWidget(self.downloadbtn,      0,1)
         layout.addWidget(self.locationbtn,      0,2)
         layout.addWidget(self.Loading,          0,3)
+
+        layout.addWidget(self.errorLbl,         1,1)
         
         self.horizontalGroupBox.setLayout(layout)
 
@@ -155,30 +205,40 @@ class Window(QWidget):
         # Link
         Link = clipboard.paste()
 
-        # Pick either playlist mode or single mode
+        # Pick either playlist mode or single mode or catch an error
         Data = None
 
+        # Multi
         try:
             Data = Playlist(Link).videos
             print(len(Data))
             print(Data[0].title)
         except:
+            print("Swapping to single video download")
+
+        # Single
+        try:
             Data = [YouTube(Link)]
             print(len(Data))
             print(Data[0].title)
+        except:
+            Data = None
 
-        # Increase Threads
-        self.threads += len(Data)
+        # If Data is a valid value
+        if Data != None:
+            # Increase Threads
+            self.threads += len(Data)
 
-        # Thread
-        worker = Worker(self.InitiateThread, Data)
-        self.threadpool.start(worker)
+            # Thread
+            worker = Worker(self.InitiateThread, Data)
+            self.threadpool.start(worker)
 
-        # Uid
-        self.DCount.setText(str(self.threads))
-        self.Loading.setHidden(False)
-        self.locationbtn.setEnabled(False)
-
+            # Uid
+            self.DCount.setText(str(self.threads))
+            self.Loading.setHidden(False)
+            self.locationbtn.setEnabled(False)
+        else:
+            self.errorLbl.BeginAnimation(self.downloadbtn, self.locationbtn)
 
     def RequestLocation(self):
         DownloadLocation = QFileDialog.getExistingDirectory(self, "Select Directory", Download)
@@ -211,6 +271,9 @@ class Window(QWidget):
         self.gif.setScaledSize(QSize().scaled(20, 20, Qt.KeepAspectRatio))
         self.Loading.setMovie(self.gif)
         self.gif.start()
+
+        # Error Ouput Label
+        self.errorLbl = AnimationLabel("Error! The link is either invalid or inaccessible")
             
         # Layout
         self.createGridLayout()
@@ -219,9 +282,10 @@ class Window(QWidget):
         windowLayout.addWidget(self.horizontalGroupBox)
         self.setLayout(windowLayout)
 
-        # Finish
+        # Show and hide ui
         self.show()
         self.Loading.setHidden(True)
+        self.errorLbl.setHidden(True)
 
 
     def Download(self, dat): 
