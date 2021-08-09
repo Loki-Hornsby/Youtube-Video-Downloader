@@ -1,1 +1,3 @@
-https://github.com/pytube/pytube
+package-one==1.9.4
+package-two==3.7.1
+package-three==1.0.1
