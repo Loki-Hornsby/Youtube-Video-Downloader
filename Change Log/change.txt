@@ -27,15 +27,15 @@ FIRST LOG
 HUGE CLEANUP  
 
 
-+ Changed file enviroment to be cleaner
++ Changed file environment to be cleaner
 
-- Deleted standalone exectuable for now
+- Deleted stand alone executable for now
 - Removed toast notifications
 - Removed download directory as default location and changed it to be within its own folder (possibly making it close to be available on linux and mac)
 
 @-------@
 
-Post Cleanup
+Post Clean up
 
 + Fixed Playlist download (making 2 try statements without any if statements made it always revert to single download mode)
 
@@ -43,5 +43,22 @@ Post Cleanup
 
 _________
 
-??/??/??:
+11/08/21:
 _________
+
+
+@-------@
+
+Trying to create successful stand alone
+
++ updated Readme.md with better thanks
++ learnt about and added a submodule! (ffmpeg)
++ retrying pyinstaller exe
++ added manual requirements
+
++/- added then removed requirements.txt
+
+@-------@
+
+
+
