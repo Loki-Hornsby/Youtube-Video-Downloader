@@ -1,3 +1,9 @@
+# Thanks to
+## Ffmpeg
+## Pytube
+## Pyinstaller
+## PyQt5
+
 # Youtube-Mp3-Downloader <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/LogoGif.gif" width="32" height="32"> 
 A small portable youtube link downloader (WIP)
 
@@ -18,7 +24,6 @@ A small portable youtube link downloader (WIP)
 - Download Youtube Playlists - each video will be put on seperate threads :)
 - Infinite threading of downloads (so you can spam the download button as much as you want!)
 - Detection of exisiting songs
-- Toast notification when songs are complete (if download lasted more than 2 minutes)
 - Directory Location Select
 
 # Info
