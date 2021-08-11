@@ -12,6 +12,11 @@ PyInstaller bundles a Python application and all its dependencies into a single 
 ## PyQt5
 PyQt is a Python binding of the cross-platform GUI toolkit Qt, implemented as a Python plug-in. PyQt is free software developed by the British firm Riverbank Computing.
 
+## timeit
+This module provides a simple way to time small bits of Python code.
+
+## clipboard
+A cross platform clipboard operation library of Python.
 
 # Youtube-Mp3-Downloader <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/LogoGif.gif" width="32" height="32"> 
 A small portable youtube link downloader (WIP)
