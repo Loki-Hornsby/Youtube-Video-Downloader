@@ -1,0 +1,5 @@
+Pytube
+Ffmpeg
+PyQt5
+clipboard
+timeit
