@@ -1,1 +1,2 @@
 https://git.ffmpeg.org/ffmpeg.git
+git+git://github.com/path/to/package-two@41b95ec#egg=package-two
