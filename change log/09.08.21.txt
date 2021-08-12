@@ -5,7 +5,6 @@ _________
 
 Opened Changelog Manually - script may be created later to automate this a bit more
 
-@-------@
 
 FIRST LOG
 
@@ -22,10 +21,8 @@ FIRST LOG
 # Not all of videos in playlist download (Pytube problem i thinks)
 # Not working on others machines
 
-@-------@
 
 HUGE CLEANUP  
-
 
 + Changed file environment to be cleaner
 
@@ -33,32 +30,8 @@ HUGE CLEANUP
 - Removed toast notifications
 - Removed download directory as default location and changed it to be within its own folder (possibly making it close to be available on linux and mac)
 
-@-------@
 
 Post Clean up
 
 + Fixed Playlist download (making 2 try statements without any if statements made it always revert to single download mode)
-
-@-------@
-
-_________
-
-11/08/21:
-_________
-
-
-@-------@
-
-Trying to create successful stand alone
-
-+ updated Readme.md with better thanks
-+ learnt about and added a submodule! (ffmpeg)
-+ retrying pyinstaller exe
-+ added manual requirements
-
-+/- added then removed requirements.txt
-
-@-------@
-
-
 

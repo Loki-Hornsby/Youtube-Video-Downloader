@@ -1,0 +1,19 @@
+_________
+
+11/08/21:
+_________
+
+
+Trying to create successful stand alone
+
++ updated Readme.md with better thanks
++ learnt about and added a submodule! (ffmpeg)
++ retrying pyinstaller exe
++ added manual requirements
+
++/- added then removed requirements.txt
+
+
+
+
+

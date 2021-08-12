@@ -1,0 +1,9 @@
+_________
+
+12/08/21:
+_________
+
+found another undiscovered bug
+
++ not sure as to why this appeared but i added data being assigned as none if multi video download fails
++ separated changelogs into individual files

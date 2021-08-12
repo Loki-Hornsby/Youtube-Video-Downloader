@@ -198,6 +198,7 @@ class Window(QWidget):
                 print(Data[0].title)
             except:
                 print("Swapping to single video download")
+                Data = None
 
         # Single
         if Data == None:
@@ -206,6 +207,7 @@ class Window(QWidget):
                 print(len(Data))
                 print(Data[0].title)
             except:
+                print("Fatal Error!")
                 Data = None
 
         # If Data is a valid value
