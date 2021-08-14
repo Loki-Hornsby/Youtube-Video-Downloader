@@ -1,0 +1,25 @@
+
+> \YOUTUBE DOWNLOADER/ <
+
+Debug Info:
+    Run Mode:             running in a normal Python process
+    Threads:              4
+    Download Ext:         .mp3
+
+    Python version:       ['3.9.0 (tags/v3.9.0:9cf6752', 'Oct  5 2020', '15:34:40) [MSC v.1927 64 bit (AMD64)]']
+    System:               Windows
+    Machine:              AMD64
+    Platform:             Windows-10-10.0.19041-SP0
+    Version:              10.0.19041
+
+> Initializating Gui...
+> Initialization done
+> App Starting! 
+
+[%] 14 Common Cat Myths We Need to Stop Believing
+    File Already Exists!
+[-] copied link was invalid or inaccessible
+[%] 14 Common Cat Myths We Need to Stop Believing
+    File Already Exists!
+[%] 14 Common Cat Myths We Need to Stop Believing
+    File Already Exists!

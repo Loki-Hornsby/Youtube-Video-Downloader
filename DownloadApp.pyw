@@ -1,6 +1,9 @@
 # ----- Compile Command ----- #
 # pyinstaller -w --onefile DownloadApp.pyw
 
+
+# ----- Modules ----- #
+
 from __future__ import print_function, unicode_literals
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -21,8 +24,68 @@ import uuid
 import clipboard
 import timeit
 
-DownloadLocation = "downloads"
+import logging
 
+
+# ----- Log Setup ----- #
+
+# Path
+p = "output log/LOG.txt"
+
+# Configure file
+logging.basicConfig(
+    filename = p,
+    format='%(message)s',
+    level=logging.INFO)
+
+# Clear file of any previous text
+with open(p, 'w'):
+    pass
+
+# Get/Create logger
+logger = logging.getLogger(__name__)
+
+# Output wether running from bundle or python process
+_runmode = ""
+
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    _runmode = "running in a PyInstaller bundle"
+else:
+    _runmode = "running in a normal Python process"
+
+# Output number of threads
+th = QThreadPool()
+_threads = str(th.maxThreadCount())
+
+# Output selected extension
+extension = ".mp3"
+
+# Output spec info
+import platform
+_Py_ver = str(sys.version.split(', '))
+_system = platform.system() 
+_machine = platform.machine() 
+_platform = platform.platform() 
+_ver = platform.version()
+
+# Build Output
+logger.info("\n> \YOUTUBE DOWNLOADER/ <\n")
+logger.info("Debug Info:")
+
+logger.info(
+        "    Run Mode:        "  +  "     " + _runmode  +  "\n"  +
+        "    Threads:         "  +  "     " + _threads  +  "\n"  +
+        "    Download Ext:    "  +  "     " + extension +  "\n"  +
+                                                           "\n"  +
+        "    Python version:  "  +  "     " + _Py_ver   +  "\n"  +
+        "    System:          "  +  "     " + _system   +  "\n"  +
+        "    Machine:         "  +  "     " + _machine  +  "\n"  +
+        "    Platform:        "  +  "     " + _platform +  "\n"  +
+        "    Version:         "  +  "     " + _ver      +  "\n"  
+
+            )
+
+# ----- Threading ----- #
 
 class WorkerSignals(QObject):
     finished = pyqtSignal()
@@ -55,72 +118,98 @@ class Worker(QRunnable):
             self.signals.finished.emit()  # Done
 
 
+# ----- Notification Label ----- #
+
 class AnimationLabel(QLabel):
+    # Initialize Label
     def __init__(self, *args, **kwargs):
         QLabel.__init__(self, *args, **kwargs)
         self.animation = QVariantAnimation()
         self.animation.valueChanged.connect(self.changeColor)
+    
+    # Change labels text
+    def changetext(self, s):
+        self.setText(s)
 
+    # Animations
     @pyqtSlot(QVariant)
+
+    # Change label color
     def changeColor(self, color):
         palette = self.palette()
         palette.setColor(QPalette.WindowText, color)
         self.setPalette(palette)
 
-    def startFadeIn(self):
+    # fade in label
+    def startFadeIn(self, startC, endC):
         self.animation.stop()
-        self.animation.setStartValue(QColor(255, 0, 0, 0))
-        self.animation.setEndValue(QColor(255, 0, 0, 255))
+        self.animation.setStartValue(startC)
+        self.animation.setEndValue(endC)
         self.animation.setDuration(1000)
         self.animation.setEasingCurve(QEasingCurve.InBack)
         self.animation.start()
 
-    def startFadeOut(self):
+    # fade out label
+    def startFadeOut(self, startC, endC):
         self.animation.stop()
-        self.animation.setStartValue(QColor(255, 0, 0, 255))
-        self.animation.setEndValue(QColor(255, 0, 0, 0))
+        self.animation.setStartValue(startC)
+        self.animation.setEndValue(endC)
         self.animation.setDuration(1000)
         self.animation.setEasingCurve(QEasingCurve.InBack)
         self.animation.start()
 
+    # disable ui objects
     def disableUi(self, a, b):
         a.setEnabled(False)
         b.setEnabled(False)
 
+    # enable ui objects
     def enableUi(self, a, b):
         a.setEnabled(True)
         b.setEnabled(True)
 
-    def BeginAnimation(self, a, b):
+    # begin preset animation
+    def BeginAnimation(self, a, b, s, startC, endC):
+        print("Starting animation")
+
+        self.changetext(s)
+
         self.disableUi(a, b)
 
-        self.startFadeIn()
+        self.startFadeIn(startC, endC)
         self.setHidden(False)
 
-        QTimer.singleShot(1000, self.startFadeOut)
-        QTimer.singleShot(2000, self.startFadeIn)
-        QTimer.singleShot(3000, self.startFadeOut)
+        QTimer.singleShot(1000, lambda: self.startFadeOut(endC, startC))
+        QTimer.singleShot(2000, lambda: self.startFadeIn(startC, endC))
+        QTimer.singleShot(3000, lambda: self.startFadeOut(endC, startC))
         
         QTimer.singleShot(4000, lambda: self.setHidden(True))
         QTimer.singleShot(4000, lambda: self.enableUi(a, b))
 
+
+# ----- Main App ----- #
+
 class Window(QWidget):
 
-    
+    # Initialize app
     def __init__(self):
         super(Window, self).__init__()
 
-        # Error Occured
-        self.ErrorOccured = False
-
-        # Initialize Ui
-        self.initUI()
+        # Default download location
+        self.DownloadLocation = "downloads"
 
         # Setup Threads
         self.threads = 0
         self.threadpool = QThreadPool()
-        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
-  
+
+        # Initialize Ui
+        self.initUI()
+
+        # Finish initialization
+        logger.info("> Initialization done")
+    
+
+    # Center window
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
@@ -128,6 +217,7 @@ class Window(QWidget):
         self.move(qr.topLeft())
 
 
+    # Create Grid
     def createGridLayout(self):
         self.horizontalGroupBox = QGroupBox("Youtube Downloader")
         layout = QGridLayout()
@@ -146,11 +236,31 @@ class Window(QWidget):
         layout.addWidget(self.locationbtn,      0,2)
         layout.addWidget(self.Loading,          0,3)
 
-        layout.addWidget(self.errorLbl,         1,1)
+        layout.addWidget(self.flashlbl,         1,1)
         
         self.horizontalGroupBox.setLayout(layout)
 
+    def showAnimation(self, ind):
+        if ind == 1:
+            logger.info("[-] copied link was invalid or inaccessible")
 
+            self.flashlbl.BeginAnimation(
+                self.downloadbtn, 
+                self.locationbtn, 
+                "Error! The copied link is either invalid or inaccessible",
+                QColor(255, 0, 0, 0),
+                QColor(100, 0, 0, 255))
+
+        elif ind == 2:
+            self.flashlbl.BeginAnimation(
+                self.downloadbtn, 
+                self.locationbtn, 
+                "Completed all downloads!",
+                QColor(0, 255, 0, 0),
+                QColor(0, 100, 0, 255))
+
+
+    # On Thread Completed
     def thread_complete(self):
         # Threads
         self.threads -= 1
@@ -158,27 +268,33 @@ class Window(QWidget):
 
         # No Threads Left Condition
         if self.threads == 0:
-        
-            # Flash errorlbl when done (and rename errorlbl to notiflbl)
-
-        #---# Soft Reset
-            self.Loading.setHidden(True)
+            self.showAnimation(2)
             
+            # Soft Reset
+            self.Loading.setHidden(True)
             self.locationbtn.setEnabled(True)
-        
-        self.ErrorOccured = False
 
+    # Empty thread
+    def blank(self):
+        pass
 
+    # Begin Thread(s)
     def InitiateThread(self, dat):
         for v in dat:
-            worker = Worker(self.Download, v)
-            worker.signals.finished.connect(self.thread_complete)
-            
-            self.threadpool.start(worker)
+            if not os.path.isfile(self.DownloadLocation + '\\' + v.title + extension):
+                worker = Worker(self.Download, v)
+                worker.signals.finished.connect(self.thread_complete)
+                
+                self.threadpool.start(worker)
+            else: 
+                worker = Worker(self.blank)
+                worker.signals.finished.connect(self.thread_complete)
 
-            print("Started a download!")
+                self.threadpool.start(worker)
 
+                logger.info("[%] " + v.title + "\n    File Already Exists!")
 
+    # On download button pressed
     def callback(self):
         # Timer
         if self.threads == 0:
@@ -197,7 +313,6 @@ class Window(QWidget):
                 print(len(Data))
                 print(Data[0].title)
             except:
-                print("Swapping to single video download")
                 Data = None
 
         # Single
@@ -207,14 +322,12 @@ class Window(QWidget):
                 print(len(Data))
                 print(Data[0].title)
             except:
-                print("Fatal Error!")
                 Data = None
 
         # If Data is a valid value
         if Data != None:
             # Increase Threads
             self.threads += len(Data)
-            print(len(Data))
 
             # Thread
             worker = Worker(self.InitiateThread, Data)
@@ -225,13 +338,15 @@ class Window(QWidget):
             self.Loading.setHidden(False)
             self.locationbtn.setEnabled(False)
         else:
-            self.errorLbl.BeginAnimation(self.downloadbtn, self.locationbtn)
-
-    def RequestLocation(self):
-        DownloadLocation = QFileDialog.getExistingDirectory(self, "Select Directory")
+            self.showAnimation(1)
     
 
-    # method for creating widgets
+    # Request folder location
+    def RequestLocation(self):
+        self.DownloadLocation = QFileDialog.getExistingDirectory(self, "Select Directory")
+    
+
+    # Initialize UI Objects
     def initUI(self):
         # Window Setup
         self.setFixedSize(400, 0)
@@ -244,12 +359,14 @@ class Window(QWidget):
 
         # Download Button
         self.downloadbtn = QPushButton('Download', self)
-        self.downloadbtn.setToolTip("Download Copied Link")
+        self.downloadbtn.setToolTip("Download copied link")
      
         self.downloadbtn.clicked.connect(self.callback)
 
         # Download Location Button
         self.locationbtn = QPushButton('..', self)
+        self.locationbtn.setToolTip("Change download location")
+
         self.locationbtn.clicked.connect(self.RequestLocation)
 
         # Loading Symbol
@@ -260,7 +377,7 @@ class Window(QWidget):
         self.gif.start()
 
         # Error Ouput Label
-        self.errorLbl = AnimationLabel("Error! The link is either invalid or inaccessible")
+        self.flashlbl = AnimationLabel("Something has messed up if your seeing this")
             
         # Layout
         self.createGridLayout()
@@ -272,49 +389,48 @@ class Window(QWidget):
         # Show and hide ui
         self.show()
         self.Loading.setHidden(True)
-        self.errorLbl.setHidden(True)
+        self.flashlbl.setHidden(True)
+
+        logger.info("> Initializating Gui...")
 
 
+    # Download a video
     def Download(self, dat): 
-        # Get Name       
-        try:
-            self.SongName = dat.title
-        except:
-            self.ErrorOccured = True
-            print("Invalid Link")
-
         # General
-        SongName = self.SongName # Download Name for file
-        SongDirectory = DownloadLocation + '\\' # Location of Download
-        extension = ".mp3"
+        VideoName = dat.title # Download Name for file
+        VideoDirectory = self.DownloadLocation + '\\' # Location of Download
+        
+        logger.info("[+] " + VideoName + "\n    Added to download list")
 
-        if not os.path.isfile(SongDirectory + SongName + extension):
-            # Generate Unique temp Name
+        # Generate Unique temp Name
+        unique = str(uuid.uuid4().hex)
+
+        while glob.glob(VideoDirectory + unique + ".*"):
             unique = str(uuid.uuid4().hex)
 
-            while glob.glob(SongDirectory + unique + ".*"):
-                unique = str(uuid.uuid4().hex)
-            
-            # Download Video
-            vids = dat.streams.first()
-            vids.download(SongDirectory, unique) 
-            
-            # Convert Video
-            CREATE_NO_WINDOW = 0x08000000
-            subprocess.call([
-                'ffmpeg',
-                '-nostdin',
-                '-i', os.path.join(SongDirectory, unique), os.path.join(SongDirectory, SongName + extension)], creationflags=CREATE_NO_WINDOW)
-
-            # Delete Temp
-            while os.path.isfile(SongDirectory + unique):
-                if os.path.isfile(SongDirectory + SongName + extension):
-                    os.remove(SongDirectory + unique)
-        else:
-            print("File Already Exists!")
+        # Download Video
+        vids = dat.streams.first()
+        vids.download(VideoDirectory, unique) 
         
+        # Convert Video
+        CREATE_NO_WINDOW = 0x08000000
+        subprocess.call([
+            'ffmpeg',                                               # Using ffmpeg
+            '-nostdin',                                             # Disable interaction
+            '-i',                                                   #| Input -->
+            os.path.join(VideoDirectory, unique),                   #|| Input
+            os.path.join(VideoDirectory, VideoName + extension)],   #|| Ouput
+            creationflags=CREATE_NO_WINDOW)                         # Disable console window from appearing
+            
+        # Delete Temp
+        logger.info("[*] " + VideoName + "\n    Finishing up")
 
-# Main
+        while os.path.isfile(VideoDirectory + unique):
+            if os.path.isfile(VideoDirectory + VideoName + extension):
+                os.remove(VideoDirectory + unique)
+
+
+# ----- Run App ----- #
 if __name__ == '__main__':
     # create pyqt5 app
     App = QApplication(sys.argv)
@@ -325,7 +441,7 @@ if __name__ == '__main__':
     # Name Window
     window.setWindowTitle("Youtube Downloader")
   
-    # start the app
-    sys.exit(App.exec_())
+    # Start the app
+    logger.info("> App Starting! \n")
 
-    
+    sys.exit(App.exec_())

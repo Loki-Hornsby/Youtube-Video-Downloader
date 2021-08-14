@@ -3,7 +3,17 @@ _________
 12/08/21:
 _________
 
-found another undiscovered bug
+Found another undiscovered bug
 
 + not sure as to why this appeared but i added data being assigned as none if multi video download fails
 + separated changelogs into individual files
++ changed changelog styling a bit
+
+Adding a bit o' clarity
+
++ added hover tooltips
++ added changetext function for flashlbl
++ added downloads finished and download error notification
++ added parameters for changing colour of flashlbl during animation
+
+% changed errorlbl to flashlbl

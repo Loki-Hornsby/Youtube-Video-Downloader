@@ -1,0 +1,29 @@
+_________
+
+14/08/21:
+_________
+
+Creating an output log
+
+% changed Song in variables to Video
+
+] moved DownloadLocation variable to init and finally gave it a self class
+
++ added showAnimation function
++ added more comments to make code more understandable
++ added logger and folder for output log file
+	|   + creates path variable
+	|   + clears file each time their opened
+	|   + create/get log.txt file
+	|   + outputs os and other info
+    V   + outputs errors, warnings and other info
+
++ added blank thread for if video already exists
+	+ downloads is no longer called in this case
++ added conditional logs (i.e video link is invalid)
+	+ added video download already exists
+	+ added video link is invalid
+	+ added video download to a thread
++ tidied up VideoName variable definition - no idea what i was doing there - must be artefacts from old code
+	+ also removed any remanants of self.VideoName since i believe this would cause issues making a name global
++ added binds to notepad++ for easier changelog creation
