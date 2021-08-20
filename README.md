@@ -1,5 +1,8 @@
 # Thanks to
 
+## Nullsoft Scriptable Install System (NSIS)
+Nullsoft Scriptable Install System is a script-driven installer authoring tool for Microsoft Windows backed by Nullsoft, the creators of Winamp. NSIS is released under a combination of free software licenses, primarily the zlib license.
+
 ## Ffmpeg
 FFmpeg is a free and open-source software project consisting of a large suite of libraries and programs for handling video, audio, and other multimedia files and streams. At its core is the FFmpeg program itself, designed for command-line-based processing of video and audio files.
 
