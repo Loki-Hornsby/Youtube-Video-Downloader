@@ -39,9 +39,3 @@ A small portable youtube link downloader (WIP)
 - Infinite threading of downloads (so you can spam the download button as much as you want!)
 - Detection of exisiting songs
 - Directory Location Select
-
-# Info
-Author: https://github.com/Bobbymcbobface </br>
-&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;https://www.youtube.com/channel/UC1pIR8WylamKlXLEeeKK0hA </br>
-        
-&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;These are the only 2 places you can contact me online publically
