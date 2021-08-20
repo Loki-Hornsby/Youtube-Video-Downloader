@@ -1,25 +1,39 @@
 # Thanks to
 
-## Nullsoft Scriptable Install System (NSIS)
-Nullsoft Scriptable Install System is a script-driven installer authoring tool for Microsoft Windows backed by Nullsoft, the creators of Winamp. NSIS is released under a combination of free software licenses, primarily the zlib license.
+<details>
+  <summary>Nullsoft Scriptable Install System (NSIS)</summary> 
+  Nullsoft Scriptable Install System is a script-driven installer authoring tool for Microsoft Windows backed by Nullsoft, the creators of Winamp. NSIS is released under   a combination of free software licenses, primarily the zlib license.
+</details>
 
-## Ffmpeg
+<details>
+<summary>Ffmpeg</summary> 
 FFmpeg is a free and open-source software project consisting of a large suite of libraries and programs for handling video, audio, and other multimedia files and streams. At its core is the FFmpeg program itself, designed for command-line-based processing of video and audio files.
+</details>
 
-## Pytube
+<details>
+<summary>Pytube</summary> 
 pytube is a lightweight, Pythonic, dependency-free, library (and command-line utility) for downloading YouTube Videos.
+</details>
 
-## Pyinstaller
+<details>
+<summary>Pyinstaller</summary> 
 PyInstaller bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
+</details>
 
-## PyQt5
+<details>
+<summary>PyQt5</summary> 
 PyQt is a Python binding of the cross-platform GUI toolkit Qt, implemented as a Python plug-in. PyQt is free software developed by the British firm Riverbank Computing.
+</details>
 
-## timeit
+<details>
+<summary>timeit</summary> 
 This module provides a simple way to time small bits of Python code.
+</details>
 
-## clipboard
+<details>
+<summary>clipboard</summary> 
 A cross platform clipboard operation library of Python.
+</details>
 
 # Youtube-Mp3-Downloader <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/LogoGif.gif" width="32" height="32"> 
 A small portable youtube link downloader (WIP)
