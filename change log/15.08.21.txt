@@ -1,0 +1,22 @@
+_________
+
+15/08/21:
+_________
+
+Trying to solve dependency problem
+
+% changed spaces in build output log to .ljust(x)
+% changed Output log to now include:
+	Run Mode
+	Threads    
+	Download Ext				  
+	System    
+	Machine
+	Platform
+	Version				  
+	Python version
+	Modules
+
++ added new exe version
++ added an installer
++ added base NSIS code for installer (still alot to do like include https://www.gnu.org/licenses/gpl-3.0.txt into the liscense page via a webdownload)

@@ -2,24 +2,226 @@
 > \YOUTUBE DOWNLOADER/ <
 
 Debug Info:
-    Run Mode:             running in a normal Python process
-    Threads:              4
-    Download Ext:         .mp3
-
-    Python version:       ['3.9.0 (tags/v3.9.0:9cf6752', 'Oct  5 2020', '15:34:40) [MSC v.1927 64 bit (AMD64)]']
-    System:               Windows
-    Machine:              AMD64
-    Platform:             Windows-10-10.0.19041-SP0
-    Version:              10.0.19041
+    Run Mode:            running in a normal Python process
+    Threads:             4
+    Download Ext:        .mp3 ..
+    
+    System:              Windows
+    Machine:             AMD64
+    Platform:            Windows-10-10.0.19041-SP0
+    Version:             10.0.19041
+    
+    Python version:      ['3.9.0 (tags/v3.9.0:9cf6752', 'Oct  5 2020', '15:34:40) [MSC v.1927 64 bit (AMD64)]']
+    Modules:         
+        sys
+        builtins
+        _frozen_importlib
+        _imp
+        _thread
+        _warnings
+        _weakref
+        _frozen_importlib_external
+        nt
+        _io
+        marshal
+        winreg
+        time
+        zipimport
+        _codecs
+        codecs
+        encodings.aliases
+        encodings
+        encodings.utf_8
+        encodings.cp1252
+        _signal
+        encodings.latin_1
+        _abc
+        abc
+        io
+        __main__
+        _stat
+        stat
+        _collections_abc
+        genericpath
+        ntpath
+        os.path
+        os
+        _sitebuiltins
+        _locale
+        _bootlocale
+        pywin32_bootstrap
+        site
+        __future__
+        _heapq
+        heapq
+        itertools
+        keyword
+        _operator
+        operator
+        reprlib
+        _collections
+        collections
+        types
+        _functools
+        functools
+        importlib._bootstrap
+        importlib._bootstrap_external
+        warnings
+        importlib
+        importlib.machinery
+        collections.abc
+        contextlib
+        enum
+        _sre
+        sre_constants
+        sre_parse
+        sre_compile
+        copyreg
+        re
+        typing.io
+        typing.re
+        typing
+        importlib.abc
+        importlib.util
+        _weakrefset
+        weakref
+        pkgutil
+        PyQt5
+        atexit
+        sip
+        PyQt5.sip
+        PyQt5.QtCore
+        PyQt5.QtGui
+        PyQt5.QtWidgets
+        pytube.version
+        token
+        tokenize
+        linecache
+        traceback
+        _string
+        string
+        threading
+        logging
+        math
+        _datetime
+        datetime
+        urllib
+        posixpath
+        fnmatch
+        errno
+        zlib
+        _compression
+        _bz2
+        bz2
+        _lzma
+        lzma
+        shutil
+        _bisect
+        bisect
+        _random
+        _sha512
+        random
+        tempfile
+        urllib.response
+        urllib.error
+        urllib.parse
+        pytube.exceptions
+        _struct
+        struct
+        gzip
+        _json
+        json.scanner
+        json.decoder
+        json.encoder
+        json
+        binascii
+        base64
+        email
+        _hashlib
+        _blake2
+        hashlib
+        http
+        email.errors
+        email.quoprimime
+        email.base64mime
+        quopri
+        email.encoders
+        email.charset
+        email.header
+        _socket
+        select
+        selectors
+        socket
+        locale
+        calendar
+        email._parseaddr
+        email.utils
+        email._policybase
+        email.feedparser
+        email.parser
+        uu
+        email._encoded_words
+        email.iterators
+        email.message
+        _ssl
+        ssl
+        http.client
+        nturl2path
+        urllib.request
+        pytube.helpers
+        _ast
+        ast
+        pytube.parser
+        pytube.cipher
+        pytube.metadata
+        pytube.extract
+        pytube.request
+        pytube.itags
+        pytube.monostate
+        pytube.streams
+        xml
+        xml.etree
+        xml.etree.ElementPath
+        copy
+        pyexpat.errors
+        pyexpat.model
+        pyexpat
+        _elementtree
+        xml.etree.ElementTree
+        html.entities
+        html
+        pytube.captions
+        pytube.query
+        pathlib
+        pytube.innertube
+        pytube.__main__
+        pytube.contrib
+        pytube.contrib.playlist
+        pytube.contrib.channel
+        pytube.contrib.search
+        pytube
+        signal
+        msvcrt
+        _winapi
+        subprocess
+        glob
+        _uuid
+        uuid
+        _ctypes
+        ctypes._endian
+        ctypes
+        platform
+        pyperclip
+        clipboard
+        gc
+        timeit
 
 > Initializating Gui...
 > Initialization done
 > App Starting! 
 
-[%] 14 Common Cat Myths We Need to Stop Believing
-    File Already Exists!
-[-] copied link was invalid or inaccessible
-[%] 14 Common Cat Myths We Need to Stop Believing
-    File Already Exists!
-[%] 14 Common Cat Myths We Need to Stop Believing
-    File Already Exists!
+<__main__.LoggerWriter object at 0x00000211154BDA00>
+<__main__.LoggerWriter object at 0x00000211154BDA00>
+<__main__.LoggerWriter object at 0x00000211154BDA00>
+<__main__.LoggerWriter object at 0x00000211154BDA00>
+<__main__.LoggerWriter object at 0x00000211154BDA00>

@@ -1,6 +1,9 @@
 # ----- Compile Command ----- #
-# pyinstaller -w --onefile DownloadApp.pyw
+""" 
 
+pyinstaller -w --onefile DownloadApp.pyw
+
+"""
 
 # ----- Modules ----- #
 
@@ -29,6 +32,25 @@ import logging
 
 # ----- Log Setup ----- #
 
+class LoggerWriter:
+    def __init__(self, level):
+        # self.level is really like using log.debug(message)
+        # at least in my case
+        self.level = level
+
+    def write(self, message):
+        # if statement reduces the amount of newlines that are
+        # printed to the logger
+        if message != '\n':
+            self.level(message)
+
+    def flush(self):
+        # create a flush method so things can be flushed when
+        # the system wants to. Not sure if simply 'printing'
+        # sys.stderr is the correct way to do it, but it seemed
+        # to work properly for me.
+        self.level(sys.stderr)
+
 # Path
 p = "output log/LOG.txt"
 
@@ -45,6 +67,10 @@ with open(p, 'w'):
 # Get/Create logger
 logger = logging.getLogger(__name__)
 
+# Redirect errors to output log
+sys.stdout = LoggerWriter(logger.info)
+sys.stderr = LoggerWriter(logger.warning)
+
 # Output wether running from bundle or python process
 _runmode = ""
 
@@ -57,33 +83,37 @@ else:
 th = QThreadPool()
 _threads = str(th.maxThreadCount())
 
-# Output selected extension
+# Selected extension
 extension = ".mp3"
 
 # Output spec info
 import platform
-_Py_ver = str(sys.version.split(', '))
 _system = platform.system() 
 _machine = platform.machine() 
 _platform = platform.platform() 
 _ver = platform.version()
+
+# Python info
+_Py_ver = str(sys.version.split(', '))
+_modu = ("\n" + "".ljust(8)).join(sys.modules.keys())
 
 # Build Output
 logger.info("\n> \YOUTUBE DOWNLOADER/ <\n")
 logger.info("Debug Info:")
 
 logger.info(
-        "    Run Mode:        "  +  "     " + _runmode  +  "\n"  +
-        "    Threads:         "  +  "     " + _threads  +  "\n"  +
-        "    Download Ext:    "  +  "     " + extension +  "\n"  +
-                                                           "\n"  +
-        "    Python version:  "  +  "     " + _Py_ver   +  "\n"  +
-        "    System:          "  +  "     " + _system   +  "\n"  +
-        "    Machine:         "  +  "     " + _machine  +  "\n"  +
-        "    Platform:        "  +  "     " + _platform +  "\n"  +
-        "    Version:         "  +  "     " + _ver      +  "\n"  
-
-            )
+        "".ljust(4) + "Run Mode:".ljust(17)         + "".ljust(4)    + _runmode  +  "\n"  +
+        "".ljust(4) + "Threads:".ljust(17)          + "".ljust(4)    + _threads  +  "\n"  +
+        "".ljust(4) + "Download Ext:".ljust(17)     + "".ljust(4)    + extension +  "\n"  +
+        "".ljust(4) +                                                               "\n"  +
+        "".ljust(4) + "System:".ljust(17)           + "".ljust(4)    + _system   +  "\n"  +
+        "".ljust(4) + "Machine:".ljust(17)          + "".ljust(4)    + _machine  +  "\n"  +
+        "".ljust(4) + "Platform:".ljust(17)         + "".ljust(4)    + _platform +  "\n"  +
+        "".ljust(4) + "Version:".ljust(17)          + "".ljust(4)    + _ver      +  "\n"  +
+        "".ljust(4) +                                                               "\n"  +
+        "".ljust(4) + "Python version:".ljust(17)   + "".ljust(4)    + _Py_ver   +  "\n"  +
+        "".ljust(4) + "Modules:".ljust(17)          + "\n".ljust(9)  + _modu     +  "\n"  
+        )
 
 # ----- Threading ----- #
 
