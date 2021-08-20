@@ -1,2 +1,3 @@
 
 installer (NSIS)/inst.nsi
+output log/LOG.txt

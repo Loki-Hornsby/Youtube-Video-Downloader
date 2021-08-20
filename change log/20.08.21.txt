@@ -8,3 +8,6 @@ Finialized installer! (some work still required tho)
 	+ added all needed install folders
 	+ added exception if user is offline
 	+ added uninstaller
+	
+FFmpeg not defined on other machines
+- removed FFmpeg submodule
