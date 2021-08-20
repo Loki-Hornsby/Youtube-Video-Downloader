@@ -11,3 +11,4 @@ Finialized installer! (some work still required tho)
 	
 FFmpeg not defined on other machines
 - removed FFmpeg submodule
+- removed Testing files
