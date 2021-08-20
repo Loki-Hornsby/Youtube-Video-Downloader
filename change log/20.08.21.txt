@@ -1,0 +1,10 @@
+_________
+
+20/08/21:
+_________
+
+Finialized installer! (some work still required tho)
+	+ added online download for liscense
+	+ added all needed install folders
+	+ added exception if user is offline
+	+ added uninstaller
