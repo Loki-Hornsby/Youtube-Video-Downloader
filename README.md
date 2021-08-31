@@ -38,10 +38,6 @@ A cross platform clipboard operation library of Python.
 # Youtube-Mp3-Downloader <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/LogoGif.gif" width="32" height="32"> 
 A small portable youtube link downloader (WIP)
 
-<img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Click.gif" width="250" height="50"> 
-<img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Download.gif" width="250" height="30">
-
-
 | OS  | Supported |
 | :---: | :---: |
 | <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Mac.png" width="64" height="64">  | No |
