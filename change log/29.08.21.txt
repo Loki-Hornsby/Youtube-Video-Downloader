@@ -1,0 +1,14 @@
+_________
+
+29/08/21:
+_________
+
+% changed pytube ver to 11.0.1
+- removed some prints for the output log
++ added Build number
+% changed Loading.gif
+% changed FFmpeg folder to now actually contain exe
+% changed code to now call ffmpeg.exe
+
+Waiting on build 2...
+No commit was produced since i need to remove artifacts of previous submodules

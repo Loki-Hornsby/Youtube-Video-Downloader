@@ -97,6 +97,10 @@ _ver = platform.version()
 _Py_ver = str(sys.version.split(', '))
 _modu = ("\n" + "".ljust(8)).join(sys.modules.keys())
 
+# build number
+build_number = str(1)
+logger.info("Build Number: " + build_number)
+
 # Build Output
 logger.info("\n> \YOUTUBE DOWNLOADER/ <\n")
 logger.info("Debug Info:")
@@ -200,8 +204,6 @@ class AnimationLabel(QLabel):
 
     # begin preset animation
     def BeginAnimation(self, a, b, s, startC, endC):
-        print("Starting animation")
-
         self.changetext(s)
 
         self.disableUi(a, b)
@@ -340,8 +342,8 @@ class Window(QWidget):
         if Data == None:
             try:
                 Data = Playlist(Link).videos
-                print(len(Data))
-                print(Data[0].title)
+                len(Data)
+                Data[0].title
             except:
                 Data = None
 
@@ -349,8 +351,8 @@ class Window(QWidget):
         if Data == None:
             try:
                 Data = [YouTube(Link)]
-                print(len(Data))
-                print(Data[0].title)
+                len(Data)
+                Data[0].title
             except:
                 Data = None
 
@@ -445,7 +447,7 @@ class Window(QWidget):
         # Convert Video
         CREATE_NO_WINDOW = 0x08000000
         subprocess.call([
-            'ffmpeg',                                               # Using ffmpeg
+            'FFmpeg/bin/ffmpeg.exe',                                # Using ffmpeg - i call the exe directly.
             '-nostdin',                                             # Disable interaction
             '-i',                                                   #| Input -->
             os.path.join(VideoDirectory, unique),                   #|| Input
