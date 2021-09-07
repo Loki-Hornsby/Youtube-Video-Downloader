@@ -4,14 +4,13 @@
   <summary>Nullsoft Scriptable Install System (NSIS)</summary> 
   Nullsoft Scriptable Install System is a script-driven installer authoring tool for Microsoft Windows backed by Nullsoft, the creators of Winamp. NSIS is released under   a combination of free software licenses, primarily the zlib license.
   
-  PyQt5 is released under the "GPL v3 license" (As of writing this).
+  https://nsis.sourceforge.io/License
 </details>
 
 <details>
 <summary>Ffmpeg</summary> 
 FFmpeg is a free and open-source software project consisting of a large suite of libraries and programs for handling video, audio, and other multimedia files and streams. At its core is the FFmpeg program itself, designed for command-line-based processing of video and audio files.
 
-I DO NOT CLAIM TO OWN FFMPEG OR ANY CODE WRITTEN BY THEM AS OF WRITING THIS I AM IMPLEMENTING RECCOMENDED LEGAL COMPLIANCES TO SHOW THIS BY FOLLOWING THE GUIDELINES HERE:
 https://www.ffmpeg.org/legal.html
 </details>
 
@@ -19,7 +18,7 @@ https://www.ffmpeg.org/legal.html
 <summary>Pytube</summary> 
 pytube is a lightweight, Pythonic, dependency-free, library (and command-line utility) for downloading YouTube Videos.
   
-Pytube uses "The Unlicense" (As of writing this). 
+https://github.com/pytube/pytube/blob/master/LICENSE
 </details>
 
 <details>
@@ -32,9 +31,8 @@ https://www.pyinstaller.org/license.html
 <details>
 <summary>PyQt5</summary> 
 PyQt is a Python binding of the cross-platform GUI toolkit Qt, implemented as a Python plug-in. PyQt is free software developed by the British firm Riverbank Computing.
-
-"The free versions are licensed under the GNU General Public License version 3. If your use of Riverbank's software is compatible with the GPL then you do not need to buy a commercial license."
-Source: https://riverbankcomputing.com/commercial/pyqt
+  
+https://riverbankcomputing.com/commercial/license-faq
 </details>
 
 <details>
