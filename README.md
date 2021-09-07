@@ -66,3 +66,6 @@ A small portable youtube link downloader (WIP)
 - Infinite threading of downloads (so you can spam the download button as much as you want!)
 - Detection of exisiting songs
 - Directory Location Select
+
+# -- DISCLAIMER --
+3rd party code IS used - i do NOT claim to own any of the 3rd party code.
