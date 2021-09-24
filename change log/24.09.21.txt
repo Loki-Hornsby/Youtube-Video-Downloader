@@ -1,0 +1,6 @@
+_________
+
+24/09/21:
+_________
+
++ added fix to app crashing (i forgot to recompile exe and installer)

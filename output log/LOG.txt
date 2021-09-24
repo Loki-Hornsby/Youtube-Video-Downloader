@@ -221,8 +221,12 @@ Debug Info:
 > Initialization done
 > App Starting! 
 
-<__main__.LoggerWriter object at 0x000002AB0AC2EA00>
-<__main__.LoggerWriter object at 0x000002AB0AC2EA00>
-<__main__.LoggerWriter object at 0x000002AB0AC2EA00>
-<__main__.LoggerWriter object at 0x000002AB0AC2EA00>
-<__main__.LoggerWriter object at 0x000002AB0AC2EA00>
+[+] Getting run over by the train in Stardew Valley
+    Added to download list
+[*] Getting run over by the train in Stardew Valley
+    Finishing up
+<__main__.LoggerWriter object at 0x0000016FE4CDDA00>
+<__main__.LoggerWriter object at 0x0000016FE4CDDA00>
+<__main__.LoggerWriter object at 0x0000016FE4CDDA00>
+<__main__.LoggerWriter object at 0x0000016FE4CDDA00>
+<__main__.LoggerWriter object at 0x0000016FE4CDDA00>

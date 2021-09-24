@@ -1,3 +1,6 @@
+# Made By Loki Hornsby
+# Under GPL-3.0 License
+
 # ----- Compile Command ----- #
 """ 
 
