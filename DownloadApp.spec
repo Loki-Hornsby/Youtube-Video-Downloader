@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['DownloadApp.pyw'],
-             pathex=['D:\\Youtube Downloader'],
+             pathex=['d:\\Youtube Downloader'],
              binaries=[],
              datas=[],
              hiddenimports=[],

@@ -1,0 +1,8 @@
+_________
+
+21/10/21:
+_________
+
++ added Build 2
+	% changed Audio to be downloaded at a higher quality 
+	% changed Temp data to be stored in text files 

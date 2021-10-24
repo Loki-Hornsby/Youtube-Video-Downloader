@@ -101,7 +101,7 @@ _Py_ver = str(sys.version.split(', '))
 _modu = ("\n" + "".ljust(8)).join(sys.modules.keys())
 
 # build number
-build_number = str(1)
+build_number = str(2)
 logger.info("Build Number: " + build_number)
 
 # Build Output
@@ -429,7 +429,7 @@ class Window(QWidget):
         logger.info("> Initializating Gui...")
 
 
-    # Download a video
+    # Download the video stream
     def Download(self, dat): 
         # General
         VideoName = dat.title # Download Name for file
@@ -437,24 +437,25 @@ class Window(QWidget):
         
         logger.info("[+] " + VideoName + "\n    Added to download list")
 
-        # Generate Unique temp Name
-        unique = str(uuid.uuid4().hex)
+        # Generate unique name for text file
+        temp_extension = ".txt" # required temporary extension for conversion
+        unique = str(uuid.uuid4().hex) + temp_extension
 
         while glob.glob(VideoDirectory + unique + ".*"):
-            unique = str(uuid.uuid4().hex)
+            unique = str(uuid.uuid4().hex) + temp_extension
 
-        # Download Video
-        vids = dat.streams.first()
+        # Store Audio stream data in a text file
+        vids = dat.streams.get_audio_only()
         vids.download(VideoDirectory, unique) 
         
-        # Convert Video
+        # Convert the data into selected extension
         CREATE_NO_WINDOW = 0x08000000
         subprocess.call([
             'FFmpeg/bin/ffmpeg.exe',                                # Using ffmpeg - i call the exe directly.
             '-nostdin',                                             # Disable interaction
-            '-i',                                                   #| Input -->
-            os.path.join(VideoDirectory, unique),                   #|| Input
-            os.path.join(VideoDirectory, VideoName + extension)],   #|| Ouput
+            '-i',                                                   #
+            os.path.join(VideoDirectory, unique),                   # Input
+            os.path.join(VideoDirectory, VideoName + extension)],   # Ouput
             creationflags=CREATE_NO_WINDOW)                         # Disable console window from appearing
             
         # Delete Temp
