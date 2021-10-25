@@ -56,7 +56,7 @@ A small portable youtube link downloader (WIP)
 | :---: | :---: |
 | <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Mac.png" width="64" height="64">  | No |
 | <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Windows.png" width="64" height="64"> | Yes |
-| <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Linux.png" width="64" height="64">  | No |
+| <img src="https://github.com/Bobbymcbobface/Youtube-Video-Downloader/blob/main/readme/Linux.png" width="64" height="64">  | Source Code only |
 
 
 
