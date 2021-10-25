@@ -18,11 +18,12 @@ from PyQt5.QtCore import *
 from pytube import YouTube
 from pytube import Playlist
 
+from pathlib import Path
 import sys
 import subprocess
 
 import os
-from winreg import *
+# from winreg import *
 import glob
 import traceback
 import uuid
@@ -31,7 +32,7 @@ import clipboard
 import timeit
 
 import logging
-
+# import pdb; pdb.set_trace()
 
 # ----- Log Setup ----- #
 
@@ -56,16 +57,23 @@ class LoggerWriter:
 
 # Path
 p = "output log/LOG.txt"
+logging_path = Path(os.path.join(os.getcwd(), p))
+print(logging_path)
 
 # Configure file
+if not os.path.exists(p):
+    os.mkdir("output log")
+    with open(p, "w+"):
+        pass
+
+
 logging.basicConfig(
     filename = p,
     format='%(message)s',
     level=logging.INFO)
 
 # Clear file of any previous text
-with open(p, 'w'):
-    pass
+
 
 # Get/Create logger
 logger = logging.getLogger(__name__)
@@ -231,8 +239,10 @@ class Window(QWidget):
         super(Window, self).__init__()
 
         # Default download location
-        self.DownloadLocation = "downloads"
-
+        if os.name == "posix":
+            self.DownloadLocation = "../../../downloads" #Downloads need to show up outside of the .app
+        else:
+            self.DownloadLocation ="downloads"
         # Setup Threads
         self.threads = 0
         self.threadpool = QThreadPool()
@@ -316,7 +326,7 @@ class Window(QWidget):
     # Begin Thread(s)
     def InitiateThread(self, dat):
         for v in dat:
-            if not os.path.isfile(self.DownloadLocation + '\\' + v.title + extension):
+            if not os.path.isfile(self.DownloadLocation + os.path.sep + v.title + extension):
                 worker = Worker(self.Download, v)
                 worker.signals.finished.connect(self.thread_complete)
                 
@@ -433,7 +443,7 @@ class Window(QWidget):
     def Download(self, dat): 
         # General
         VideoName = dat.title # Download Name for file
-        VideoDirectory = self.DownloadLocation + '\\' # Location of Download
+        VideoDirectory = self.DownloadLocation + os.path.sep # Location of Download
         
         logger.info("[+] " + VideoName + "\n    Added to download list")
 
@@ -450,14 +460,27 @@ class Window(QWidget):
         
         # Convert the data into selected extension
         CREATE_NO_WINDOW = 0x08000000
-        subprocess.call([
-            'FFmpeg/bin/ffmpeg.exe',                                # Using ffmpeg - i call the exe directly.
-            '-nostdin',                                             # Disable interaction
-            '-i',                                                   #
-            os.path.join(VideoDirectory, unique),                   # Input
-            os.path.join(VideoDirectory, VideoName + extension)],   # Ouput
-            creationflags=CREATE_NO_WINDOW)                         # Disable console window from appearing
-            
+        
+        ffmpeg_executible = 'FFmpeg/bin/ffmpeg.exe' if os.name == "nt" else "ffmpeg"
+        print(ffmpeg_executible)
+        logger.info("VideoDirectory, VideoName + extension")
+
+        if(os.name=="nt"):
+            subprocess.call([
+                ffmpeg_executible,                                # Using ffmpeg - i call the exe directly.
+                '-nostdin',                                             # Disable interaction
+                '-i',                                                   #
+                os.path.join(VideoDirectory, unique),                   # Input
+                os.path.join(VideoDirectory, VideoName + extension)],   # Ouput
+                creationflags=CREATE_NO_WINDOW)                         # Disable console window from appearing
+        else:
+            subprocess.call([
+                ffmpeg_executible,                                # Using ffmpeg - i call the exe directly.
+                '-nostdin',                                             # Disable interaction
+                '-i',                                                   #
+                os.path.join(VideoDirectory, unique),                   # Input
+                os.path.join(VideoDirectory, VideoName + extension)])    # Ouput
+
         # Delete Temp
         logger.info("[*] " + VideoName + "\n    Finishing up")
 
