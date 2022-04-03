@@ -1,0 +1,8 @@
+_________
+
+03/04/22:
+_________
+
++ added Update for py tube - it should work again for now - however i do plan to at some point (hopefully) fix this by using a tool such as scrapy or YTDLP
+
+v1.2.1-beta
